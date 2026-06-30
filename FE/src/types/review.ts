@@ -1,0 +1,33 @@
+export interface Review {
+  id: number;
+  fishId: number;
+  nickname: string;
+  rating: number | null;
+  content: string;
+  imageUrl: string | null;
+  helpfulCount: number;
+  createdAt: string;
+}
+
+export interface ReviewList {
+  fishId: number;
+  avgRating: number;
+  totalCount: number;
+  ratingDistribution: Record<'1' | '2' | '3' | '4' | '5', number>;
+  reviews: Review[];
+}
+
+export type ReviewSort = 'latest' | 'helpful';
+
+export interface ReviewRequest {
+  nickname: string;
+  rating?: number;
+  content: string;
+  imageUrl?: string | null;
+  password: string;
+}
+
+export interface ReviewHelpfulResponse {
+  id: number;
+  helpfulCount: number;
+}

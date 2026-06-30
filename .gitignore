@@ -1,0 +1,26 @@
+# macOS
+.DS_Store
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+build/
+FE/dist/
+FE/dist-ssr/
+FE/*.tsbuildinfo
+BE/.gradle/
+BE/build/
+
+# Environment and local-only config
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.local
+
+# IDE/editor files
+.idea/
+.vscode/
+*.iml

@@ -1,0 +1,13 @@
+package com.fishbook.review.dto;
+
+import java.util.List;
+import java.util.Map;
+
+public record ReviewListResponse(
+        Long fishId,
+        double avgRating,
+        long totalCount,
+        Map<String, Long> ratingDistribution,
+        List<ReviewResponse> reviews
+) {
+}

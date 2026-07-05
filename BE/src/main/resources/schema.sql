@@ -1,4 +1,4 @@
--- FishBook 스키마 (PostgreSQL)
+-- FishNote 스키마 (PostgreSQL)
 -- docs/01_DB설계.md 의 DDL 그대로. 재기동 시 안전하도록 IF NOT EXISTS 추가.
 -- spring.jpa.hibernate.ddl-auto=validate 가 이 스키마에 대해 엔티티 매핑을 검증한다.
 

@@ -2,7 +2,7 @@ import { ThumbsUp, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type { Review } from '../types/review';
 
-const HELPFUL_STORAGE_KEY = 'fishbook.helpfulReviewIds';
+const HELPFUL_STORAGE_KEY = 'fishnote.helpfulReviewIds';
 
 interface ReviewListProps {
   reviews: Review[];

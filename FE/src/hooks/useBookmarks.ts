@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useSyncExternalStore } from 'react';
 
-const BOOKMARK_STORAGE_KEY = 'fishbook:bookmarkedFishIds';
+const BOOKMARK_STORAGE_KEY = 'fishnote:bookmarkedFishIds';
 
 type BookmarkSnapshot = number[];
 

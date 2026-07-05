@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# FishBook 로컬 DB 셋업 (멱등 — 여러 번 실행해도 안전)
+# FishNote 로컬 DB 셋업 (멱등 — 여러 번 실행해도 안전)
 # 사전: brew install postgresql@16  (한 번만)
 set -e
 
@@ -13,8 +13,8 @@ sleep 3
 echo "▶ postgres 역할 생성 (이미 있으면 통과)..."
 createuser -s postgres 2>/dev/null && echo "  postgres 역할 생성됨" || echo "  postgres 역할 이미 존재"
 
-echo "▶ fishbook DB 생성 (이미 있으면 통과)..."
-createdb -O postgres fishbook 2>/dev/null && echo "  fishbook DB 생성됨" || echo "  fishbook DB 이미 존재"
+echo "▶ fishnote DB 생성 (이미 있으면 통과)..."
+createdb -O postgres fishnote 2>/dev/null && echo "  fishnote DB 생성됨" || echo "  fishnote DB 이미 존재"
 
 echo ""
 echo "✅ DB 준비 완료. 다음:"

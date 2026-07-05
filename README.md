@@ -1,6 +1,6 @@
-# FishBook
+# FishNote
 
-FishBook is a Spring Boot + React monorepo for browsing fish by season, taste, price level, and anonymous reviews.
+FishNote is a Spring Boot + React monorepo for browsing fish by season, taste, price level, and anonymous reviews.
 
 ## Local Development
 
@@ -16,7 +16,7 @@ The backend runs at `http://localhost:8080` and exposes `GET /api/v1/health`.
 Default local database settings:
 
 ```text
-SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/fishbook
+SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/fishnote
 SPRING_DATASOURCE_USERNAME=postgres
 SPRING_DATASOURCE_PASSWORD=
 ```
@@ -24,7 +24,7 @@ SPRING_DATASOURCE_PASSWORD=
 Create the local database before booting:
 
 ```bash
-createdb fishbook
+createdb fishnote
 ```
 
 ### Frontend
@@ -107,5 +107,5 @@ Connect the purchased domain to Vercel for the frontend. If a separate API domai
 After the domain is connected, update Railway's `APP_CORS_ALLOWED_ORIGINS` to include the final frontend domain, for example:
 
 ```text
-APP_CORS_ALLOWED_ORIGINS=https://fishbook.example.com,https://www.fishbook.example.com
+APP_CORS_ALLOWED_ORIGINS=https://fishnote.example.com,https://www.fishnote.example.com
 ```

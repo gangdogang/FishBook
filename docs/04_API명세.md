@@ -1,4 +1,4 @@
-# FishBook — REST API 명세서
+# FishNote — REST API 명세서
 
 > Base URL: `/api/v1`  ·  Content-Type: `application/json`
 > 모든 응답은 DTO 기반 JSON. 에러는 §6 표준 포맷.

@@ -1,4 +1,4 @@
-# FishBook — Codex 구현 티켓
+# FishNote — Codex 구현 티켓
 
 > 사용법: 위에서부터 **하나씩** Codex에 넘겨. 각 티켓의 "프롬프트" 블록을 복사하면 됨.
 > 참고문서: `01_DB설계.md`, `03_구현_아키텍처.md`, `04_API명세.md`
@@ -27,7 +27,7 @@
 ## T1 — BE 프로젝트 셋업
 **목표**: Spring Boot 실행 + PostgreSQL 연결 + CORS 기본.
 **프롬프트**:
-> `BE/` 폴더에 Spring Boot 3.3 / Java 17 / Gradle 프로젝트를 만들어줘. 의존성은 Spring Web, Spring Data JPA, Validation, Lombok, PostgreSQL Driver. 패키지는 `com.fishbook`. `application.yml`에 PostgreSQL(fishbook DB) 접속을 환경변수(SPRING_DATASOURCE_*)로 받게 설정하고 `ddl-auto: update`. `config/CorsConfig`로 `http://localhost:5173` 허용. 루트 헬스체크 `GET /api/v1/health` → `{"status":"ok"}` 추가.
+> `BE/` 폴더에 Spring Boot 3.3 / Java 17 / Gradle 프로젝트를 만들어줘. 의존성은 Spring Web, Spring Data JPA, Validation, Lombok, PostgreSQL Driver. 패키지는 `com.fishnote`. `application.yml`에 PostgreSQL(fishnote DB) 접속을 환경변수(SPRING_DATASOURCE_*)로 받게 설정하고 `ddl-auto: update`. `config/CorsConfig`로 `http://localhost:5173` 허용. 루트 헬스체크 `GET /api/v1/health` → `{"status":"ok"}` 추가.
 
 **DoD**: `./gradlew bootRun` 실행, `/api/v1/health` 200 응답, DB 연결 성공.
 

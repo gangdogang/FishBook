@@ -1,10 +1,10 @@
 INSERT INTO fish (id, name, name_en, image_url, taste_desc, price_level, featured, description, created_at)
 VALUES
     (1, '광어', 'Olive flounder', '/fish/gwangeo.jpg', '담백하고 쫄깃한 식감. 회 입문자에게 무난합니다.', 2, true, '담백하고 쫄깃한 국민 흰살회', now()),
-    (2, '방어', 'Yellowtail', NULL, '기름기가 풍부하고 고소해 겨울에 특히 인기가 많습니다.', 3, true, '겨울에 기름 오른 진한 풍미의 생선', now()),
+    (2, '방어', 'Yellowtail', '/fish/bangeo.jpg', '기름기가 풍부하고 고소해 겨울에 특히 인기가 많습니다.', 3, true, '겨울에 기름 오른 진한 풍미의 생선', now()),
     (3, '우럭', 'Rockfish', NULL, '탄탄한 살과 깔끔한 단맛이 있어 회와 매운탕 모두 잘 어울립니다.', 2, false, '쫄깃한 식감과 시원한 국물 맛', now()),
     (4, '참돔', 'Red seabream', '/fish/chamdom.jpg', '은은한 단맛과 고급스러운 감칠맛이 특징입니다.', 3, true, '잔칫상에 잘 어울리는 고급 흰살생선', now()),
-    (5, '연어', 'Salmon', NULL, '부드럽고 기름진 식감으로 초밥과 샐러드에 잘 맞습니다.', 2, false, '부드럽고 고소한 인기 생선', now()),
+    (5, '연어', 'Salmon', '/fish/yeoneo.jpg', '부드럽고 기름진 식감으로 초밥과 샐러드에 잘 맞습니다.', 2, false, '부드럽고 고소한 인기 생선', now()),
     (6, '도미', 'Sea bream', NULL, '깔끔한 감칠맛과 단단한 살결로 숙성회에 잘 어울립니다.', 3, false, '담백하고 우아한 감칠맛의 흰살생선', now())
 ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
@@ -37,7 +37,9 @@ DELETE FROM fish_image WHERE fish_id IN (1, 2, 3, 4, 5, 6);
 
 INSERT INTO fish_image (fish_id, image_order, url) VALUES
     (1, 0, '/fish/gwangeo.jpg'),
-    (4, 0, '/fish/chamdom.jpg')
+    (2, 0, '/fish/bangeo.jpg'),
+    (4, 0, '/fish/chamdom.jpg'),
+    (5, 0, '/fish/yeoneo.jpg')
 ON CONFLICT (fish_id, image_order) DO UPDATE SET
     url = EXCLUDED.url;
 

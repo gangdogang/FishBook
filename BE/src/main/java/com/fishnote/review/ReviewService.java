@@ -32,12 +32,16 @@ public class ReviewService {
     public ReviewListResponse findReviews(Long fishId, int page, int size, String sort) {
         ensureFishExists(fishId);
         Pageable pageable = PageRequest.of(page, size, reviewSort(sort));
+        // 평균·개수는 개별 쿼리 대신 그룹 집계 1회로 (원거리 DB 왕복 최소화)
+        FishRatingStat stat = reviewRepository.findRatingStatsByFishIds(java.util.List.of(fishId)).stream()
+                .findFirst()
+                .orElse(null);
         return new ReviewListResponse(
                 fishId,
-                averageRating(fishId),
-                reviewRepository.countByFishId(fishId),
+                averageRating(stat),
+                stat == null ? 0 : stat.getReviewCount(),
                 RatingDistribution.from(reviewRepository.countByRatingForFishId(fishId)),
-                reviewRepository.findByFishId(fishId, pageable).stream()
+                reviewRepository.findAllByFishId(fishId, pageable).stream()
                         .map(this::toResponse)
                         .toList());
     }
@@ -104,9 +108,10 @@ public class ReviewService {
         throw new IllegalArgumentException("sort는 latest 또는 helpful 중 하나여야 합니다.");
     }
 
-    private double averageRating(Long fishId) {
-        return reviewRepository.averageRatingByFishId(fishId)
-                .map(value -> Math.round(value * 10.0) / 10.0)
-                .orElse(0.0);
+    private double averageRating(FishRatingStat stat) {
+        if (stat == null || stat.getAvgRating() == null) {
+            return 0.0;
+        }
+        return Math.round(stat.getAvgRating() * 10.0) / 10.0;
     }
 }

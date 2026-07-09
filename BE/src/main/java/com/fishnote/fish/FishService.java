@@ -72,7 +72,7 @@ public class FishService {
     }
 
     public FishDetailResponse getFish(Long id) {
-        Fish fish = fishRepository.findById(id)
+        Fish fish = fishRepository.findDetailById(id)
                 .orElseThrow(() -> new NotFoundException("생선을 찾을 수 없습니다."));
         return toDetail(fish);
     }

@@ -13,6 +13,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     Page<Review> findByFishId(Long fishId, Pageable pageable);
 
+    // Page와 달리 count 쿼리를 추가로 날리지 않음 — 총 개수는 집계 쿼리에서 얻는다
+    List<Review> findAllByFishId(Long fishId, Pageable pageable);
+
     long countByFishId(Long fishId);
 
     @Query("select avg(r.rating) from Review r where r.fish.id = :fishId and r.rating is not null")

@@ -53,11 +53,11 @@ export default function FishDetailPage() {
     setFormError(undefined);
     window.requestAnimationFrame(() => {
       reviewFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      reviewFormRef.current?.querySelector<HTMLInputElement>('input[name="nickname"]')?.focus({ preventScroll: true });
+      reviewFormRef.current?.querySelector<HTMLInputElement | HTMLTextAreaElement>('input[name="nickname"], textarea')?.focus({ preventScroll: true });
     });
   }
 
-  async function handleDeleteReview(reviewId: number, password: string) {
+  async function handleDeleteReview(reviewId: number, password?: string) {
     setReviewActionError(undefined);
     try {
       await deleteMutation.mutateAsync({ reviewId, password });
@@ -374,4 +374,3 @@ function RatingStars({ rating, className = '' }: { rating: number; className?: s
     </span>
   );
 }
-

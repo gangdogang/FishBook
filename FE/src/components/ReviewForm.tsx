@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useRef, useState, type RefObject } from 'react';
 import { uploadImage } from '../api/image';
+import { useAuth } from '../hooks/useAuth';
 import type { ReviewRequest } from '../types/review';
 import { Field, inputClass } from './FormField';
 
@@ -39,12 +40,14 @@ const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 const UPLOAD_ERROR_MESSAGE = '사진 업로드에 실패했어요. 사진 없이 등록하거나 다시 시도해 주세요';
 
 export default function ReviewForm({ submitting, error, resetKey, formRef, onSubmit }: ReviewFormProps) {
+  const { user, isAuthenticated } = useAuth();
   const [form, setForm] = useState<ReviewFormState>(emptyForm);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [selectedImage, setSelectedImage] = useState<SelectedImage | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isBusy = submitting || uploading;
+  const isMemberReview = Boolean(isAuthenticated && user);
 
   useEffect(() => {
     setForm(emptyForm);
@@ -93,7 +96,7 @@ export default function ReviewForm({ submitting, error, resetKey, formRef, onSub
     event.preventDefault();
     if (isBusy) return;
 
-    const nextErrors = validateForm(form);
+    const nextErrors = validateForm(form, isMemberReview);
     if (Object.keys(nextErrors).length > 0) {
       setFieldErrors(nextErrors);
       return;
@@ -115,13 +118,18 @@ export default function ReviewForm({ submitting, error, resetKey, formRef, onSub
       setUploading(false);
     }
 
-    onSubmit({
-      nickname: form.nickname.trim(),
+    const request: ReviewRequest = {
       rating: form.rating,
       content: form.content.trim(),
       imageUrl,
-      password: form.password,
-    });
+    };
+
+    if (!isMemberReview) {
+      request.nickname = form.nickname.trim();
+      request.password = form.password;
+    }
+
+    onSubmit(request);
   }
 
   return (
@@ -134,18 +142,22 @@ export default function ReviewForm({ submitting, error, resetKey, formRef, onSub
     >
       <h3 className="m-0 mb-3.5 text-[15px] font-bold text-ink">후기 남기기</h3>
 
-      <div className="mb-3 grid gap-3 sm:grid-cols-2">
-        <Field label="닉네임" error={fieldErrors.nickname}>
-          <input
-            name="nickname"
-            maxLength={30}
-            value={form.nickname}
-            placeholder="예: 회러버"
-            aria-invalid={Boolean(fieldErrors.nickname)}
-            onChange={(event) => updateField('nickname', event.target.value)}
-            className={inputClass(Boolean(fieldErrors.nickname))}
-          />
-        </Field>
+      {isMemberReview && user ? <p className="m-0 mb-3 text-[13px] leading-snug text-ink-mute">{user.nickname} 님으로 남깁니다</p> : null}
+
+      <div className={['mb-3 grid gap-3', isMemberReview ? '' : 'sm:grid-cols-2'].join(' ')}>
+        {!isMemberReview ? (
+          <Field label="닉네임" error={fieldErrors.nickname}>
+            <input
+              name="nickname"
+              maxLength={30}
+              value={form.nickname}
+              placeholder="예: 회러버"
+              aria-invalid={Boolean(fieldErrors.nickname)}
+              onChange={(event) => updateField('nickname', event.target.value)}
+              className={inputClass(Boolean(fieldErrors.nickname))}
+            />
+          </Field>
+        ) : null}
 
         <Field label="별점 (선택)" error={fieldErrors.rating}>
           <div className="flex min-h-[42px] items-center gap-1" role="radiogroup" aria-label="별점">
@@ -188,20 +200,22 @@ export default function ReviewForm({ submitting, error, resetKey, formRef, onSub
 
       <div className="grid gap-3 sm:grid-cols-2 sm:items-end">
         <div>
-          <Field label="비밀번호" error={fieldErrors.password} helper="후기를 지울 때만 써요 (4자 이상)">
-            <input
-              minLength={4}
-              maxLength={20}
-              type="password"
-              value={form.password}
-              placeholder="4자 이상"
-              aria-invalid={Boolean(fieldErrors.password)}
-              onChange={(event) => updateField('password', event.target.value)}
-              className={inputClass(Boolean(fieldErrors.password))}
-            />
-          </Field>
+          {!isMemberReview ? (
+            <Field label="비밀번호" error={fieldErrors.password} helper="후기를 지울 때만 써요 (4자 이상)">
+              <input
+                minLength={4}
+                maxLength={20}
+                type="password"
+                value={form.password}
+                placeholder="4자 이상"
+                aria-invalid={Boolean(fieldErrors.password)}
+                onChange={(event) => updateField('password', event.target.value)}
+                className={inputClass(Boolean(fieldErrors.password))}
+              />
+            </Field>
+          ) : null}
 
-          <div className="mt-2">
+          <div className={isMemberReview ? '' : 'mt-2'}>
             <input
               ref={fileInputRef}
               type="file"
@@ -252,13 +266,13 @@ export default function ReviewForm({ submitting, error, resetKey, formRef, onSub
   );
 }
 
-function validateForm(form: ReviewFormState) {
+function validateForm(form: ReviewFormState, isMemberReview: boolean) {
   const errors: FieldErrors = {};
 
-  if (!form.nickname.trim()) errors.nickname = '닉네임을 입력해 주세요.';
+  if (!isMemberReview && !form.nickname.trim()) errors.nickname = '닉네임을 입력해 주세요.';
   if (form.rating !== null && (form.rating < 1 || form.rating > 5)) errors.rating = '별점은 1~5점 중 선택해 주세요.';
   if (!form.content.trim()) errors.content = '후기를 입력해 주세요.';
-  if (form.password.length < 4 || form.password.length > 20) errors.password = '비밀번호는 4~20자로 입력해 주세요.';
+  if (!isMemberReview && (form.password.length < 4 || form.password.length > 20)) errors.password = '비밀번호는 4~20자로 입력해 주세요.';
 
   return errors;
 }

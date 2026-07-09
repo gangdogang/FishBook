@@ -7,6 +7,7 @@ export interface Review {
   imageUrl: string | null;
   helpfulCount: number;
   createdAt: string;
+  mine: boolean;
 }
 
 export interface ReviewList {
@@ -20,11 +21,11 @@ export interface ReviewList {
 export type ReviewSort = 'latest' | 'helpful';
 
 export interface ReviewRequest {
-  nickname: string;
+  nickname?: string;
   rating?: number | null;
   content: string;
   imageUrl?: string | null;
-  password: string;
+  password?: string;
 }
 
 export interface ReviewHelpfulResponse {

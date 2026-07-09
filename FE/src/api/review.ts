@@ -13,10 +13,8 @@ export async function createReview(fishId: number, request: ReviewRequest) {
   return data;
 }
 
-export async function deleteReview(reviewId: number, password: string) {
-  await apiClient.delete(`/reviews/${reviewId}`, {
-    data: { password },
-  });
+export async function deleteReview(reviewId: number, password?: string) {
+  await apiClient.delete(`/reviews/${reviewId}`, password ? { data: { password } } : undefined);
 }
 
 export async function markReviewHelpful(reviewId: number) {

@@ -3,7 +3,7 @@ import type { Review } from '../types/review';
 
 interface ReviewListProps {
   reviews: Review[];
-  onDelete: (reviewId: number, password: string) => Promise<boolean>;
+  onDelete: (reviewId: number, password?: string) => Promise<boolean>;
   onHelpful: (reviewId: number) => Promise<number | null>;
   workingReviewId?: number;
 }
@@ -44,14 +44,14 @@ export default function ReviewList({ reviews, onDelete, onHelpful, workingReview
     setDeletePassword('');
   }
 
-  async function handleDelete(reviewId: number) {
-    if (deletePassword.trim().length < 4) {
+  async function handleDelete(review: Review) {
+    if (!review.mine && deletePassword.trim().length < 4) {
       setMessage('비밀번호는 4자 이상 입력해 주세요.');
       return;
     }
 
     setMessage(undefined);
-    const ok = await onDelete(reviewId, deletePassword);
+    const ok = await onDelete(review.id, review.mine ? undefined : deletePassword);
     if (!ok) return;
 
     setDeletingReviewId(undefined);
@@ -116,17 +116,19 @@ export default function ReviewList({ reviews, onDelete, onHelpful, workingReview
             {deletingReviewId === review.id ? (
               <div className="mt-3 rounded-[10px] bg-mist p-3">
                 <p className="m-0 mb-2 text-[13px] font-medium leading-[1.5] text-ink">
-                  이 후기를 지울까요? 작성할 때 쓴 비밀번호를 입력해 주세요
+                  {review.mine ? '이 후기를 지울까요?' : '이 후기를 지울까요? 작성할 때 쓴 비밀번호를 입력해 주세요'}
                 </p>
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                  <input
-                    type="password"
-                    value={deletePassword}
-                    autoFocus
-                    onChange={(event) => setDeletePassword(event.target.value)}
-                    placeholder="비밀번호"
-                    className="min-w-0 flex-1 rounded-[10px] border border-line bg-white px-3 py-2 text-[13px] text-ink outline-none focus:border-sea"
-                  />
+                  {!review.mine ? (
+                    <input
+                      type="password"
+                      value={deletePassword}
+                      autoFocus
+                      onChange={(event) => setDeletePassword(event.target.value)}
+                      placeholder="비밀번호"
+                      className="min-w-0 flex-1 rounded-[10px] border border-line bg-white px-3 py-2 text-[13px] text-ink outline-none focus:border-sea"
+                    />
+                  ) : null}
                   <div className="flex gap-2">
                     <button
                       type="button"
@@ -142,7 +144,7 @@ export default function ReviewList({ reviews, onDelete, onHelpful, workingReview
                     <button
                       type="button"
                       disabled={workingReviewId === review.id}
-                      onClick={() => void handleDelete(review.id)}
+                      onClick={() => void handleDelete(review)}
                       className="min-h-9 flex-1 rounded-[10px] border-0 bg-red-600 px-3 py-2 text-[13px] font-semibold text-white disabled:cursor-wait disabled:bg-slate-300 sm:flex-none"
                     >
                       삭제

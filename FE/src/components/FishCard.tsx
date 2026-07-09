@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Bookmark } from 'lucide-react';
 import type { MouseEvent } from 'react';
 import { useBookmarks } from '../hooks/useBookmarks';
-import { formatMonths, formatPriceLevel } from '../lib/format';
+import { formatPriceLevel, formatSeasonBadge, isInSeasonNow } from '../lib/format';
 import type { FishSummary, SimilarFish } from '../types/fish';
 
 interface FishCardProps {
@@ -14,6 +14,10 @@ export default function FishCard({ fish, compact = false }: FishCardProps) {
   const summary = fish as FishSummary;
   const hasSummary = 'description' in summary;
   const nameEn = getOptionalString(fish, 'nameEn');
+  const seasonMonths = 'seasonMonths' in summary ? summary.seasonMonths : [];
+  const inSeasonNow = seasonMonths.length > 0 && isInSeasonNow(seasonMonths);
+  const reviewCount = 'reviewCount' in summary ? summary.reviewCount : undefined;
+  const shouldShowRating = 'avgRating' in summary && typeof reviewCount === 'number' && reviewCount > 0;
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const bookmarked = isBookmarked(fish.id);
 
@@ -26,11 +30,11 @@ export default function FishCard({ fish, compact = false }: FishCardProps) {
   return (
     <Link
       to={`/fish/${fish.id}`}
-      className="group block overflow-hidden rounded-card border border-line bg-white transition duration-150 hover:-translate-y-[3px]"
+      className="group block overflow-hidden rounded-card border border-line bg-white shadow-none transition duration-150 hover:shadow-[0_8px_24px_rgba(26,43,51,0.08)]"
     >
       <div className="relative flex aspect-[4/3] items-center justify-center bg-chipbg">
         {fish.imageUrl ? (
-          <img src={fish.imageUrl} alt={fish.name} className="h-full w-full object-cover" />
+          <img src={fish.imageUrl} alt={`${fish.name} 회 사진`} className="h-full w-full object-cover" />
         ) : (
           <svg viewBox="0 0 64 40" width={compact ? '72' : '82'} height={compact ? '45' : '51'} fill="none" strokeWidth="1.6" className="stroke-ink-mute/30" aria-hidden>
             <path d="M2 20 C16 3, 42 3, 52 20 C42 37, 16 37, 2 20 Z" />
@@ -38,15 +42,11 @@ export default function FishCard({ fish, compact = false }: FishCardProps) {
             <circle cx="18" cy="17" r="2" />
           </svg>
         )}
-        {'seasonMonths' in summary ? (
-          <span className="absolute left-3 top-3 rounded-full bg-chipbg px-2.5 py-[5px] text-xs font-semibold text-ink-mute">
-            {formatMonths(summary.seasonMonths)}
-          </span>
-        ) : null}
+        {inSeasonNow ? <SeasonBadgeNow className="absolute left-2.5 top-2.5" /> : null}
         <button
           type="button"
           onClick={handleBookmarkClick}
-          className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full border-0 bg-white/95 text-ink-mute/70 shadow-sm transition hover:text-sea"
+          className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full border border-line bg-white/90 text-ink-mute transition hover:text-sea"
           aria-label={bookmarked ? `${fish.name} 저장 해제` : `${fish.name} 저장`}
           aria-pressed={bookmarked}
         >
@@ -54,44 +54,58 @@ export default function FishCard({ fish, compact = false }: FishCardProps) {
         </button>
       </div>
 
-      <div className={compact ? 'p-4' : 'px-4 pb-[17px] pt-[15px]'}>
-        <div className="mb-1.5 flex min-w-0 items-baseline gap-2">
-          <h3 className="truncate text-[17px] font-semibold tracking-[-0.01em] text-ink">{fish.name}</h3>
-          {nameEn ? <span className="truncate text-xs text-ink-mute/70">{nameEn}</span> : null}
+      <div className={compact ? 'p-3.5' : 'p-3.5'}>
+        <div className="flex min-w-0 items-baseline justify-between gap-2">
+          <div className="min-w-0">
+            <h3 className="truncate text-[16px] font-bold leading-tight text-ink">{fish.name}</h3>
+            {nameEn ? <span className="block truncate text-xs leading-snug text-ink-mute">{nameEn}</span> : null}
+          </div>
+          {shouldShowRating ? <RatingSummary avgRating={summary.avgRating} reviewCount={reviewCount} /> : null}
         </div>
 
         {hasSummary && summary.description ? (
-          <p className="mb-3 line-clamp-2 min-h-[39px] text-[13.5px] leading-[1.45] text-ink-mute">{summary.description}</p>
+          <p className="mb-2.5 mt-[3px] truncate text-[13px] leading-[1.5] text-ink-mute">{summary.description}</p>
         ) : null}
 
-        {'tasteTags' in summary ? (
-          <div className="mb-3.5 flex min-h-7 flex-wrap gap-1.5">
-            {summary.tasteTags.map((tag) => (
-              <span key={tag} className="rounded-full border border-line bg-chipbg px-[9px] py-[3px] text-xs text-ink">
-                {tag}
-              </span>
-            ))}
-          </div>
-        ) : null}
-
-        {'priceLevel' in summary || 'avgRating' in summary ? (
-          <div className="flex items-center justify-between border-t border-line pt-3">
+        {'priceLevel' in summary || seasonMonths.length > 0 ? (
+          <div className="flex items-center justify-between gap-2">
+            {seasonMonths.length > 0 ? <SeasonBadgeOutline label={formatSeasonBadge(seasonMonths)} /> : <span />}
             {'priceLevel' in summary ? (
-              <span className="text-sm font-semibold text-ink">{formatPriceLevel(summary.priceLevel)}</span>
+              <span className="flex-none text-[13px] font-bold tabular-nums text-ink">{formatPriceLevel(summary.priceLevel)}</span>
             ) : (
               <span />
             )}
-            {'avgRating' in summary ? (
-              <span className="flex items-center gap-1 text-[13px] text-ink-mute">
-                <span className="text-star">★</span>
-                <b className="font-semibold text-ink">{summary.avgRating.toFixed(1)}</b>
-                <span className="text-ink-mute/70">({summary.reviewCount})</span>
-              </span>
-            ) : null}
           </div>
         ) : null}
       </div>
     </Link>
+  );
+}
+
+function SeasonBadgeNow({ className = '' }: { className?: string }) {
+  return (
+    <span className={['inline-flex items-center gap-[5px] rounded-full bg-sea px-2.5 py-[3px] text-xs font-bold text-white', className].join(' ')}>
+      <span className="h-[5px] w-[5px] rounded-full bg-white" aria-hidden />
+      지금 제철
+    </span>
+  );
+}
+
+function SeasonBadgeOutline({ label }: { label: string }) {
+  return (
+    <span className="inline-flex min-w-0 items-center rounded-full border border-line bg-white px-2.5 py-[3px] text-xs font-semibold text-ink-mute">
+      <span className="truncate">{label}</span>
+    </span>
+  );
+}
+
+function RatingSummary({ avgRating, reviewCount }: { avgRating: number; reviewCount: number }) {
+  return (
+    <span className="flex flex-none items-center gap-1 whitespace-nowrap text-[13px] font-bold tabular-nums text-ink">
+      <span className="text-star">★</span>
+      {avgRating.toFixed(1)}
+      <span className="font-medium text-ink-mute">({reviewCount})</span>
+    </span>
   );
 }
 

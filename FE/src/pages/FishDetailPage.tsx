@@ -1,10 +1,11 @@
 import { Bookmark, ChevronRight, Plus } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import FishCard from '../components/FishCard';
 import ReviewForm from '../components/ReviewForm';
 import ReviewList from '../components/ReviewList';
 import SeasonBar from '../components/SeasonBar';
-import { formatMonths, formatPriceLevel } from '../lib/format';
+import { formatMonths, formatPriceLabel, formatPriceLevel, formatSeasonBadge, isInSeasonNow } from '../lib/format';
 import { getErrorMessage } from '../lib/errors';
 import { useFishDetail } from '../hooks/useFish';
 import { useBookmarks } from '../hooks/useBookmarks';
@@ -94,6 +95,7 @@ export default function FishDetailPage() {
   const description = fish.tasteDesc ?? fish.description;
   const bookmarked = isBookmarked(fish.id);
   const recentReviews = (latestReviewList?.reviews ?? []).slice(0, 3);
+  const inSeasonNow = isInSeasonNow(fish.seasonMonths);
 
   return (
     <main className="mx-auto max-w-[1200px] px-4 pb-20 pt-5 sm:px-7">
@@ -109,7 +111,7 @@ export default function FishDetailPage() {
         <div className="min-w-[300px] flex-1 basis-[400px]">
           <div className="relative flex aspect-[3/2] items-center justify-center overflow-hidden rounded-card bg-chipbg">
             {selectedImage ? (
-              <img src={selectedImage} alt={fish.name} className="h-full w-full object-cover" />
+              <img src={selectedImage} alt={`${fish.name} 회 사진`} className="h-full w-full object-cover" />
             ) : (
               <FishPlaceholder className="h-[105px] w-[168px] stroke-ink-mute/30" />
             )}
@@ -177,8 +179,19 @@ export default function FishDetailPage() {
 
         <div className="min-w-[300px] flex-1 basis-[420px]">
           <div className="mb-3 flex items-center gap-[9px]">
-            <span className="rounded-full bg-chipbg px-3 py-[5px] text-[13px] font-semibold text-ink-mute">{formatMonths(fish.seasonMonths)} 제철</span>
-            <span className="text-sm font-semibold text-ink">{formatPriceLevel(fish.priceLevel)}</span>
+            {inSeasonNow ? (
+              <span className="inline-flex items-center gap-[5px] rounded-full bg-sea px-2.5 py-[3px] text-xs font-bold text-white">
+                <span className="h-[5px] w-[5px] rounded-full bg-white" aria-hidden />
+                지금 제철
+              </span>
+            ) : (
+              <span className="inline-flex rounded-full border border-line bg-white px-2.5 py-[3px] text-xs font-semibold text-ink-mute">
+                {formatSeasonBadge(fish.seasonMonths)}
+              </span>
+            )}
+            <span className="text-[13px] font-bold tabular-nums text-ink">
+              {formatPriceLevel(fish.priceLevel)} <span className="font-medium text-ink-mute">{formatPriceLabel(fish.priceLevel)}</span>
+            </span>
           </div>
 
           <div className="mb-2.5 flex items-baseline gap-2.5">
@@ -186,26 +199,29 @@ export default function FishDetailPage() {
             {fish.nameEn ? <span className="text-base text-ink-mute/70">{fish.nameEn}</span> : null}
           </div>
 
-          <div className="mb-[22px] flex items-center gap-2">
-            <span className="text-base text-star">★</span>
-            <b className="text-base">{avgRating.toFixed(1)}</b>
-            <span className="text-line">·</span>
-            <button
-              type="button"
-              onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-              className="bg-transparent text-sm text-ink-mute underline underline-offset-2"
-            >
-              후기 {reviewCount}개
-            </button>
-          </div>
+          {reviewCount > 0 ? (
+            <div className="mb-[22px] flex items-center gap-1 text-[13px] font-bold tabular-nums text-ink">
+              <span className="text-star">★</span>
+              <span>{avgRating.toFixed(1)}</span>
+              <button
+                type="button"
+                onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                className="bg-transparent font-medium text-ink-mute underline underline-offset-2"
+              >
+                ({reviewCount})
+              </button>
+            </div>
+          ) : (
+            <p className="mb-[22px] mt-0 text-sm text-ink-mute">아직 후기가 없어요</p>
+          )}
 
           {description ? <p className="m-0 mb-6 text-[15.5px] leading-[1.7] text-ink">{description}</p> : null}
 
           <div className="mb-6 grid grid-cols-2 gap-px overflow-hidden rounded-[14px] border border-line bg-line">
             <SpecCell label="제철" value={formatMonths(fish.seasonMonths)} />
-            <SpecCell label="가격대" value={formatPriceLevel(fish.priceLevel)} subValue={priceWord(fish.priceLevel)} strongClassName="text-ink" />
+            <SpecCell label="가격대" value={formatPriceLevel(fish.priceLevel)} subValue={formatPriceLabel(fish.priceLevel)} strongClassName="text-ink" />
             <SpecCell label="맛 프로필" value={fish.tasteTags.length > 0 ? fish.tasteTags.join(' · ') : '정보 준비 중'} />
-            <SpecCell label="평균 별점" value={`★ ${avgRating.toFixed(1)} / 5.0`} strongClassName="text-ink" />
+            <SpecCell label="평균 별점" value={reviewCount > 0 ? `★ ${avgRating.toFixed(1)} (${reviewCount})` : '아직 후기가 없어요'} strongClassName="text-ink" />
           </div>
 
           <div className="mb-6 rounded-[14px] border border-line bg-white px-5 py-[18px]">
@@ -236,38 +252,9 @@ export default function FishDetailPage() {
       {fish.similarFishes.length > 0 ? (
         <section className="mt-14">
           <h2 className="m-0 mb-[18px] text-xl font-bold tracking-normal text-ink">비슷한 생선</h2>
-          <div className="flex gap-4 overflow-x-auto pb-1">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {fish.similarFishes.map((similar) => (
-              <Link
-                key={similar.id}
-                to={`/fish/${similar.id}`}
-                className="block w-[210px] flex-none overflow-hidden rounded-card border border-line bg-white transition duration-150 hover:-translate-y-0.5"
-              >
-                <div className="relative flex aspect-[4/3] items-center justify-center bg-chipbg">
-                  {similar.imageUrl ? <img src={similar.imageUrl} alt={similar.name} className="h-full w-full object-cover" /> : <FishPlaceholder className="h-[41px] w-[66px] stroke-ink-mute/30" />}
-                  {similar.seasonMonths.length > 0 ? (
-                    <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-[5px] text-xs font-semibold text-ink-mute shadow-sm">
-                      {formatMonths(similar.seasonMonths)}
-                    </span>
-                  ) : null}
-                </div>
-                <div className="px-[15px] py-[13px]">
-                  <div className="mb-[5px] flex items-baseline justify-between gap-3">
-                    <h3 className="m-0 truncate text-[15.5px] font-semibold text-ink">{similar.name}</h3>
-                    <span className="flex-none text-[13px] font-semibold text-ink">{formatPriceLevel(similar.priceLevel)}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-[12.5px] text-ink-mute">
-                    <span className="text-star">★</span>
-                    <span>{similar.avgRating.toFixed(1)}</span>
-                    {similar.seasonMonths.length > 0 ? (
-                      <>
-                        <span className="text-line">·</span>
-                        <span className="truncate">{formatMonths(similar.seasonMonths)} 제철</span>
-                      </>
-                    ) : null}
-                  </div>
-                </div>
-              </Link>
+              <FishCard key={similar.id} fish={similar} compact />
             ))}
           </div>
         </section>
@@ -279,9 +266,15 @@ export default function FishDetailPage() {
         </h2>
         <div className="mb-6 flex flex-wrap items-center gap-8 rounded-card border border-line bg-white px-7 py-6">
           <div className="flex-none text-center">
-            <div className="text-[44px] font-bold leading-none tracking-normal">{avgRating.toFixed(1)}</div>
-            <RatingStars rating={Math.round(avgRating)} className="my-2 text-[15px] tracking-[2px]" />
-            <div className="text-[12.5px] text-ink-mute/70">후기 {reviewCount}개</div>
+            {reviewCount > 0 ? (
+              <>
+                <div className="text-[44px] font-bold leading-none tracking-normal">{avgRating.toFixed(1)}</div>
+                <RatingStars rating={Math.round(avgRating)} className="my-2 text-[15px] tracking-[2px]" />
+                <div className="text-[12.5px] text-ink-mute/70">후기 {reviewCount}개</div>
+              </>
+            ) : (
+              <div className="max-w-[150px] text-[15px] font-bold leading-[1.4] text-ink">아직 후기가 없어요</div>
+            )}
           </div>
 
           <RatingDistributionBars distribution={ratingDistribution} />
@@ -407,11 +400,4 @@ function FishPlaceholder({ className }: { className: string }) {
       <circle cx="18" cy="17" r="2" />
     </svg>
   );
-}
-
-function priceWord(priceLevel: number | null) {
-  if (priceLevel === 1) return '저렴한 편';
-  if (priceLevel === 2) return '중간 가격대';
-  if (priceLevel === 3) return '고급 어종';
-  return '';
 }

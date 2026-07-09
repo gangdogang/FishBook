@@ -28,6 +28,7 @@ export default function FilterChips({ season, taste, onSeasonChange, onTasteChan
             className={chipClass(season === item.value)}
           >
             {item.label}
+            {season === item.value ? <span aria-hidden>✕</span> : null}
           </button>
         ))}
       </div>
@@ -41,6 +42,7 @@ export default function FilterChips({ season, taste, onSeasonChange, onTasteChan
             className={chipClass(taste === item)}
           >
             {item}
+            {taste === item ? <span aria-hidden>✕</span> : null}
           </button>
         ))}
       </div>
@@ -50,9 +52,9 @@ export default function FilterChips({ season, taste, onSeasonChange, onTasteChan
 
 function chipClass(active: boolean) {
   return [
-    'whitespace-nowrap rounded-full border px-3.5 py-[7px] text-[13px] transition duration-150',
+    'inline-flex items-center gap-1 whitespace-nowrap rounded-full px-[13px] py-[5px] text-[13px] font-semibold transition duration-150',
     active
-      ? 'border-transparent bg-sea font-semibold text-white'
-      : 'border-line bg-white font-medium text-ink hover:border-sea hover:text-sea',
+      ? 'bg-sea text-white'
+      : 'bg-chipbg text-ink hover:text-sea',
   ].join(' ');
 }

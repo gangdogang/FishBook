@@ -6,7 +6,7 @@ import FishCard from '../components/FishCard';
 import MonthSidebar from '../components/MonthSidebar';
 import { useBookmarks } from '../hooks/useBookmarks';
 import { useFishList } from '../hooks/useFish';
-import { formatMonths, formatPriceLevel } from '../lib/format';
+import { formatPriceLevel, formatSeasonBadge, isInSeasonNow } from '../lib/format';
 import type { FishSummary, Season } from '../types/fish';
 import { useState } from 'react';
 
@@ -135,6 +135,7 @@ function StateText({ text }: { text: string }) {
 function FeaturedFishCard({ fish }: { fish: FishSummary }) {
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const bookmarked = isBookmarked(fish.id);
+  const inSeasonNow = isInSeasonNow(fish.seasonMonths);
 
   function handleBookmarkClick(event: MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
@@ -145,11 +146,11 @@ function FeaturedFishCard({ fish }: { fish: FishSummary }) {
   return (
     <Link
       to={`/fish/${fish.id}`}
-      className="group block overflow-hidden rounded-card border border-line bg-white transition duration-150 hover:-translate-y-[3px]"
+      className="group block overflow-hidden rounded-card border border-line bg-white shadow-none transition duration-150 hover:shadow-[0_8px_24px_rgba(26,43,51,0.08)]"
     >
       <div className="relative flex aspect-[16/10] items-center justify-center bg-chipbg">
         {fish.imageUrl ? (
-          <img src={fish.imageUrl} alt={fish.name} className="h-full w-full object-cover" />
+          <img src={fish.imageUrl} alt={`${fish.name} 회 사진`} className="h-full w-full object-cover" />
         ) : (
           <svg viewBox="0 0 64 40" width="110" height="69" fill="none" strokeWidth="1.5" className="stroke-ink-mute/30" aria-hidden>
             <path d="M2 20 C16 3, 42 3, 52 20 C42 37, 16 37, 2 20 Z" />
@@ -157,13 +158,16 @@ function FeaturedFishCard({ fish }: { fish: FishSummary }) {
             <circle cx="18" cy="17" r="2" />
           </svg>
         )}
-        <span className="absolute left-3.5 top-3.5 flex items-center gap-[5px] rounded-full bg-ink px-[11px] py-[5px] text-xs font-semibold text-white">
-          <span className="text-star">★</span> {fish.avgRating.toFixed(1)}
-        </span>
+        {inSeasonNow ? (
+          <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-[5px] rounded-full bg-sea px-2.5 py-[3px] text-xs font-bold text-white">
+            <span className="h-[5px] w-[5px] rounded-full bg-white" aria-hidden />
+            지금 제철
+          </span>
+        ) : null}
         <button
           type="button"
           onClick={handleBookmarkClick}
-          className="absolute right-3 top-3 inline-flex h-[34px] w-[34px] items-center justify-center rounded-full border-0 bg-white/95 text-ink-mute/70 shadow-sm transition hover:text-sea"
+          className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full border border-line bg-white/90 text-ink-mute transition hover:text-sea"
           aria-label={bookmarked ? `${fish.name} 저장 해제` : `${fish.name} 저장`}
           aria-pressed={bookmarked}
         >
@@ -171,20 +175,27 @@ function FeaturedFishCard({ fish }: { fish: FishSummary }) {
         </button>
       </div>
       <div className="px-5 pb-5 pt-[18px]">
-        <div className="mb-[7px] flex min-w-0 items-baseline gap-[9px]">
-          <h3 className="m-0 truncate text-xl font-bold tracking-[-0.02em] text-ink">{fish.name}</h3>
-          <span className="ml-auto flex-none text-[15px] font-semibold text-ink">{formatPriceLevel(fish.priceLevel)}</span>
+        <div className="mb-[7px] flex min-w-0 items-baseline justify-between gap-[9px]">
+          <h3 className="m-0 truncate text-xl font-bold text-ink">{fish.name}</h3>
+          {fish.reviewCount > 0 ? (
+            <span className="flex flex-none items-center gap-1 whitespace-nowrap text-[13px] font-bold tabular-nums text-ink">
+              <span className="text-star">★</span>
+              {fish.avgRating.toFixed(1)}
+              <span className="font-medium text-ink-mute">({fish.reviewCount})</span>
+            </span>
+          ) : null}
         </div>
         {fish.description ? <p className="mb-3.5 line-clamp-2 text-sm leading-[1.5] text-ink-mute">{fish.description}</p> : null}
         <div className="flex flex-wrap items-center gap-[7px]">
-          <span className="rounded-full bg-chipbg px-[11px] py-[5px] text-[12.5px] font-semibold text-ink-mute">
-            {formatMonths(fish.seasonMonths)} 제철
+          <span className="inline-flex rounded-full border border-line bg-white px-2.5 py-[3px] text-xs font-semibold text-ink-mute">
+            {formatSeasonBadge(fish.seasonMonths)}
           </span>
           {fish.tasteTags.slice(0, 2).map((tag) => (
-            <span key={tag} className="rounded-full border border-line bg-chipbg px-[11px] py-[5px] text-[12.5px] text-ink-mute">
+            <span key={tag} className="rounded-full bg-chipbg px-[13px] py-[5px] text-[13px] font-semibold text-ink">
               {tag}
             </span>
           ))}
+          <span className="ml-auto flex-none text-[13px] font-bold tabular-nums text-ink">{formatPriceLevel(fish.priceLevel)}</span>
         </div>
       </div>
     </Link>

@@ -2,6 +2,7 @@ import { useMemo, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import FishCard from '../components/FishCard';
 import { useFishList } from '../hooks/useFish';
+import { formatPriceLevel } from '../lib/format';
 import type { FishSort, Season } from '../types/fish';
 
 const seasons: Array<{ value: Season; label: string }> = [
@@ -16,9 +17,9 @@ const tastes = ['담백', '기름진', '쫄깃', '고소'];
 const months = Array.from({ length: 12 }, (_, index) => index + 1);
 
 const priceLevels = [
-  { value: 1, label: '₩' },
-  { value: 2, label: '₩₩' },
-  { value: 3, label: '₩₩₩' },
+  { value: 1, label: formatPriceLevel(1, { withLabel: true }) },
+  { value: 2, label: formatPriceLevel(2, { withLabel: true }) },
+  { value: 3, label: formatPriceLevel(3, { withLabel: true }) },
 ];
 
 export default function SearchPage() {
@@ -185,11 +186,12 @@ function FilterChip({ active, onClick, children }: { active: boolean; onClick: (
       onClick={onClick}
       className={
         active
-          ? 'inline-flex items-center justify-center rounded-full border border-transparent bg-sea px-3 py-[7px] text-[13px] font-semibold text-white transition'
-          : 'inline-flex items-center justify-center rounded-full border border-line bg-white px-3 py-[7px] text-[13px] font-medium text-ink transition hover:border-sea hover:text-sea'
+          ? 'inline-flex items-center justify-center gap-1 rounded-full bg-sea px-[13px] py-[5px] text-[13px] font-semibold text-white transition'
+          : 'inline-flex items-center justify-center rounded-full bg-chipbg px-[13px] py-[5px] text-[13px] font-semibold text-ink transition hover:text-sea'
       }
     >
       {children}
+      {active ? <span aria-hidden>✕</span> : null}
     </button>
   );
 }

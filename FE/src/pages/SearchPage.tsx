@@ -61,7 +61,7 @@ export default function SearchPage() {
   }
 
   return (
-    <main className="mx-auto max-w-[1200px] px-4 pb-20 pt-8 sm:px-7">
+    <main className="mx-auto max-w-[980px] px-4 pb-20 pt-8 sm:px-7">
       <h1 className="mb-[22px] text-2xl font-bold tracking-[-0.025em] text-ink">검색</h1>
 
       <div className="flex flex-wrap items-start gap-8">

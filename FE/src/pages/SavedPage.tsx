@@ -9,7 +9,7 @@ export default function SavedPage() {
   const savedFishes = fishes.filter((fish) => bookmarkedIdSet.has(fish.id));
 
   return (
-    <main className="mx-auto max-w-[1200px] px-4 pb-20 pt-8 sm:px-7">
+    <main className="mx-auto max-w-[980px] px-4 pb-20 pt-8 sm:px-7">
       <div className="mb-[22px] flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="mb-1.5 text-[13px] font-semibold tracking-[0.02em] text-ink-mute">SAVED FISH</p>

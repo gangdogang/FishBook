@@ -98,7 +98,7 @@ export default function FishDetailPage() {
   const inSeasonNow = isInSeasonNow(fish.seasonMonths);
 
   return (
-    <main className="mx-auto max-w-[1200px] px-4 pb-20 pt-5 sm:px-7">
+    <main className="mx-auto max-w-[980px] px-4 pb-20 pt-5 sm:px-7">
       <nav className="flex items-center gap-1.5 px-0 py-2.5 pb-[18px] text-[13.5px] text-ink-mute/70" aria-label="breadcrumb">
         <Link to="/" className="text-ink-mute hover:text-sea">
           도감
@@ -378,7 +378,7 @@ function RatingDistributionBars({ distribution }: { distribution: RatingDistribu
 }
 
 function StateText({ text }: { text: string }) {
-  return <main className="mx-auto max-w-6xl px-4 py-12 text-center text-slate-500 sm:px-6">{text}</main>;
+  return <main className="mx-auto max-w-[980px] px-4 py-12 text-center text-slate-500 sm:px-6">{text}</main>;
 }
 
 function RatingStars({ rating, className = '' }: { rating: number; className?: string }) {

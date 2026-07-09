@@ -28,7 +28,7 @@ export default function CalendarPage() {
   );
 
   return (
-    <main className="mx-auto max-w-[1200px] px-4 pb-20 pt-9 sm:px-7">
+    <main className="mx-auto max-w-[980px] px-4 pb-20 pt-9 sm:px-7">
       <h1 className="mb-2 text-[30px] font-bold tracking-[-0.03em] text-ink">제철 캘린더</h1>
       <p className="mb-[26px] text-[15.5px] leading-[1.5] text-ink-mute">달을 선택하면 그 달에 제철인 회를 모아 보여드려요.</p>
 

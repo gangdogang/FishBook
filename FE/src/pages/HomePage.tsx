@@ -45,7 +45,7 @@ export default function HomePage() {
   return (
     <main className="bg-mist">
       <section className="border-b border-line bg-mist">
-        <div className="mx-auto max-w-[1200px] px-4 py-10 text-center sm:px-7 sm:pb-9">
+        <div className="mx-auto max-w-[980px] px-4 py-10 text-center sm:px-7 sm:pb-9">
           <div className="mb-[18px] inline-flex items-center gap-[7px] rounded-full bg-sea-soft px-[13px] py-1.5 text-[13px] font-semibold text-sea">
             <span className="h-1.5 w-1.5 rounded-full bg-sea" aria-hidden />
             지금은 {currentSeasonLabel()} 제철
@@ -72,7 +72,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1200px] px-4 pb-2 pt-11 sm:px-7">
+      <section className="mx-auto max-w-[980px] px-4 pb-2 pt-11 sm:px-7">
         <div className="mb-5 flex items-end justify-between gap-4">
           <div>
             <div className="mb-1.5 text-[13px] font-semibold tracking-[0.02em] text-ink-mute">EDITOR'S PICK</div>
@@ -98,7 +98,7 @@ export default function HomePage() {
         ) : null}
       </section>
 
-      <section className="mx-auto max-w-[1200px] px-4 pb-20 pt-6 sm:px-7 lg:flex lg:items-start lg:gap-8 lg:pt-12">
+      <section className="mx-auto max-w-[980px] px-4 pb-20 pt-6 sm:px-7 lg:flex lg:items-start lg:gap-8 lg:pt-12">
         <aside className="lg:sticky lg:top-[82px] lg:w-[232px] lg:flex-none">
           <MonthSidebar selectedMonth={month} onSelect={handleMonthSelect} />
         </aside>

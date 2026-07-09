@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Bookmark } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import type { MouseEvent } from 'react';
 import { useBookmarks } from '../hooks/useBookmarks';
 import { formatPriceLevel, formatSeasonBadge, isInSeasonNow } from '../lib/format';
@@ -50,7 +50,7 @@ export default function FishCard({ fish, compact = false }: FishCardProps) {
           aria-label={bookmarked ? `${fish.name} 저장 해제` : `${fish.name} 저장`}
           aria-pressed={bookmarked}
         >
-          <Bookmark className={bookmarked ? 'h-4 w-4 fill-sea text-sea' : 'h-4 w-4 fill-none text-ink-mute/70'} aria-hidden />
+          <Heart className={bookmarked ? 'h-4 w-4 fill-sea text-sea' : 'h-4 w-4 fill-none text-ink-mute/70'} aria-hidden />
         </button>
       </div>
 

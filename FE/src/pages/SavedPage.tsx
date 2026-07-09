@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { Heart } from 'lucide-react';
 import FishCard from '../components/FishCard';
 import { useBookmarks } from '../hooks/useBookmarks';
 import { useFishList } from '../hooks/useFish';
@@ -46,9 +47,7 @@ function EmptyState() {
   return (
     <div className="rounded-card border border-dashed border-line px-5 py-[72px] text-center">
       <div className="mx-auto mb-5 flex h-[84px] w-[84px] items-center justify-center rounded-full bg-chipbg">
-        <svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="#C2C8CC" strokeWidth="1.8" aria-hidden>
-          <path d="M6 4h12v16l-6-4-6 4z" />
-        </svg>
+        <Heart className="h-[38px] w-[38px] text-ink-mute/40" aria-hidden />
       </div>
       <h2 className="mb-2 text-lg font-bold text-ink">아직 저장한 생선이 없어요</h2>
       <p className="mb-5 text-[14.5px] leading-[1.5] text-ink-mute">마음에 드는 카드의 하트를 눌러 모아보세요</p>

@@ -21,7 +21,7 @@ export type ReviewSort = 'latest' | 'helpful';
 
 export interface ReviewRequest {
   nickname: string;
-  rating?: number;
+  rating?: number | null;
   content: string;
   imageUrl?: string | null;
   password: string;

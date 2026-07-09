@@ -1,5 +1,5 @@
-import { Bookmark, Plus } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { Heart } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import FishCard from '../components/FishCard';
 import ReviewForm from '../components/ReviewForm';
@@ -17,10 +17,11 @@ export default function FishDetailPage() {
   const params = useParams();
   const fishId = Number(params.id);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [formOpen, setFormOpen] = useState(false);
+  const [reviewFormResetKey, setReviewFormResetKey] = useState(0);
   const [formError, setFormError] = useState<string | undefined>();
   const [reviewActionError, setReviewActionError] = useState<string | undefined>();
   const [reviewSort, setReviewSort] = useState<ReviewSort>('latest');
+  const reviewFormRef = useRef<HTMLFormElement>(null);
   const { data: fish, isLoading, isError } = useFishDetail(fishId);
   const { data: reviewList } = useReviews(fishId, reviewSort);
   const createMutation = useCreateReview(fishId);
@@ -41,19 +42,17 @@ export default function FishDetailPage() {
   function handleCreate(request: ReviewRequest) {
     setFormError(undefined);
     createMutation.mutate(request, {
-      onSuccess: () => setFormOpen(false),
+      onSuccess: () => setReviewFormResetKey((key) => key + 1),
       onError: (error) => setFormError(getErrorMessage(error)),
     });
   }
 
   function openReviewForm() {
     setFormError(undefined);
-    setFormOpen(true);
-  }
-
-  function closeReviewForm() {
-    setFormError(undefined);
-    setFormOpen(false);
+    window.requestAnimationFrame(() => {
+      reviewFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      reviewFormRef.current?.querySelector<HTMLInputElement>('input[name="nickname"]')?.focus({ preventScroll: true });
+    });
   }
 
   async function handleDeleteReview(reviewId: number, password: string) {
@@ -62,7 +61,8 @@ export default function FishDetailPage() {
       await deleteMutation.mutateAsync({ reviewId, password });
       return true;
     } catch (error) {
-      setReviewActionError(getErrorMessage(error));
+      const message = getErrorMessage(error);
+      setReviewActionError(message.includes('비밀번호') ? '비밀번호가 맞지 않아요' : message);
       return false;
     }
   }
@@ -70,11 +70,11 @@ export default function FishDetailPage() {
   async function handleHelpfulReview(reviewId: number) {
     setReviewActionError(undefined);
     try {
-      await helpfulMutation.mutateAsync(reviewId);
-      return true;
+      const response = await helpfulMutation.mutateAsync(reviewId);
+      return response.helpfulCount;
     } catch (error) {
       setReviewActionError(getErrorMessage(error));
-      return false;
+      return null;
     }
   }
 
@@ -183,7 +183,7 @@ export default function FishDetailPage() {
               aria-label={bookmarked ? '생선 저장 해제' : '생선 저장'}
               aria-pressed={bookmarked}
             >
-              <Bookmark className={bookmarked ? 'h-4 w-4 fill-white text-white' : 'h-4 w-4 fill-none text-white'} aria-hidden />
+              <Heart className={bookmarked ? 'h-4 w-4 fill-white text-white' : 'h-4 w-4 fill-none text-white'} aria-hidden />
               {bookmarked ? '저장됨' : '저장하기'}
             </button>
             <button
@@ -236,74 +236,56 @@ export default function FishDetailPage() {
       ) : null}
 
       <section id="reviews" className="mt-14 border-t border-line pt-[34px]">
-        <h2 className="m-0 mb-5 text-xl font-bold tracking-normal text-ink">
-          후기 <span className="font-medium text-ink-mute/70">{reviewCount}</span>
-        </h2>
-        <div className="mb-6 flex flex-wrap items-center gap-8 rounded-card border border-line bg-white px-7 py-6">
-          <div className="flex-none text-center">
-            {reviewCount > 0 ? (
-              <>
-                <div className="text-[44px] font-bold leading-none tracking-normal">{avgRating.toFixed(1)}</div>
-                <RatingStars rating={Math.round(avgRating)} className="my-2 text-[15px] tracking-[2px]" />
-                <div className="text-[12.5px] text-ink-mute/70">후기 {reviewCount}개</div>
-              </>
-            ) : (
-              <div className="max-w-[150px] text-[15px] font-bold leading-[1.4] text-ink">아직 후기가 없어요</div>
-            )}
-          </div>
-
-          <RatingDistributionBars distribution={ratingDistribution} />
-
-          <button
-            type="button"
-            onClick={openReviewForm}
-            className="inline-flex flex-none items-center gap-2 rounded-[11px] border-0 bg-sea px-6 py-[13px] text-[14.5px] font-semibold text-white hover:bg-sea"
-          >
-            <Plus className="h-4 w-4" aria-hidden />
-            후기 쓰기
-          </button>
+        <div className="mb-4 flex items-baseline gap-2">
+          <h2 className="m-0 text-[19px] font-extrabold tracking-normal text-ink">후기</h2>
+          <span className="text-[13px] tabular-nums text-ink-mute">{reviewCount}개</span>
         </div>
 
-        <div className="flex flex-col gap-3.5">
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-[15px] font-semibold">
-              전체 후기 <span className="font-medium text-ink-mute/70">{reviewCount}</span>
-            </span>
-            <select
-              value={reviewSort}
-              onChange={(event) => setReviewSort(event.target.value as ReviewSort)}
-              className="rounded-[10px] border border-line bg-white px-3 py-2 text-[13.5px] text-ink outline-none"
-              aria-label="후기 정렬"
+        <div className="grid gap-5 lg:grid-cols-[250px_minmax(0,1fr)] lg:items-start">
+          <aside className="rounded-card border border-line bg-white p-[18px]">
+            <div className="text-[34px] font-extrabold leading-[1.1] tabular-nums text-ink">
+              {avgRating.toFixed(1)} <span className="text-[15px] font-semibold text-ink-mute">/ 5</span>
+            </div>
+            <RatingStars rating={Math.round(avgRating)} className="mb-1 mt-0.5 block text-[15px] tracking-[1px]" />
+            <div className="mb-3.5 text-[13px] text-ink-mute">후기 {reviewCount}개</div>
+            <RatingDistributionBars distribution={ratingDistribution} />
+            <button
+              type="button"
+              onClick={openReviewForm}
+              className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-[10px] border-0 bg-sea px-5 py-2.5 text-sm font-bold text-white transition hover:bg-sea"
             >
-              <option value="latest">최신순</option>
-              <option value="helpful">도움돼요순</option>
-            </select>
+              후기 쓰기
+            </button>
+          </aside>
+
+          <div className="min-w-0">
+            <ReviewSortChips value={reviewSort} onChange={setReviewSort} />
+
+            {reviewActionError ? <p className="m-0 mb-3 rounded-[10px] bg-red-50 px-3 py-2 text-[13px] font-medium text-red-700">{reviewActionError}</p> : null}
+
+            <ReviewList
+              reviews={reviewList?.reviews ?? []}
+              onDelete={handleDeleteReview}
+              onHelpful={handleHelpfulReview}
+              workingReviewId={
+                helpfulMutation.isPending
+                  ? helpfulMutation.variables
+                  : deleteMutation.isPending
+                    ? deleteMutation.variables?.reviewId
+                    : undefined
+              }
+            />
+
+            <ReviewForm
+              formRef={reviewFormRef}
+              resetKey={reviewFormResetKey}
+              submitting={createMutation.isPending}
+              error={formError}
+              onSubmit={handleCreate}
+            />
           </div>
-
-          {reviewActionError ? <p className="m-0 rounded-[10px] bg-red-50 px-3 py-2 text-[13.5px] font-medium text-red-700">{reviewActionError}</p> : null}
-
-          <ReviewList
-            reviews={reviewList?.reviews ?? []}
-            onDelete={handleDeleteReview}
-            onHelpful={handleHelpfulReview}
-            workingReviewId={
-              helpfulMutation.isPending
-                ? helpfulMutation.variables
-                : deleteMutation.isPending
-                  ? deleteMutation.variables?.reviewId
-                  : undefined
-            }
-          />
         </div>
       </section>
-
-      <ReviewForm
-        open={formOpen}
-        submitting={createMutation.isPending}
-        error={formError}
-        onClose={closeReviewForm}
-        onSubmit={handleCreate}
-      />
     </main>
   );
 }
@@ -330,21 +312,52 @@ function SpecCell({
   );
 }
 
+function ReviewSortChips({ value, onChange }: { value: ReviewSort; onChange: (value: ReviewSort) => void }) {
+  return (
+    <div className="mb-3 flex gap-2" aria-label="후기 정렬">
+      <button
+        type="button"
+        onClick={() => onChange('latest')}
+        aria-pressed={value === 'latest'}
+        className={reviewSortChipClass(value === 'latest')}
+      >
+        최신순
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange('helpful')}
+        aria-pressed={value === 'helpful'}
+        className={reviewSortChipClass(value === 'helpful')}
+      >
+        도움순
+      </button>
+    </div>
+  );
+}
+
+function reviewSortChipClass(active: boolean) {
+  return [
+    'inline-flex min-h-8 items-center rounded-full px-[13px] py-[5px] text-[13px] font-semibold transition',
+    active ? 'bg-sea text-white' : 'bg-chipbg text-ink hover:text-sea',
+  ].join(' ');
+}
+
 function RatingDistributionBars({ distribution }: { distribution: RatingDistribution }) {
   const rows = [5, 4, 3, 2, 1] as const;
-  const max = Math.max(...rows.map((star) => distribution[String(star) as keyof RatingDistribution] ?? 0), 1);
+  const total = rows.reduce((sum, star) => sum + (distribution[String(star) as keyof RatingDistribution] ?? 0), 0);
 
   return (
-    <div className="flex min-w-[220px] flex-1 basis-[260px] flex-col gap-[7px]">
+    <div className="grid gap-[5px]">
       {rows.map((star) => {
         const count = distribution[String(star) as keyof RatingDistribution] ?? 0;
+        const width = total > 0 ? Math.round((count / total) * 100) : 0;
         return (
-          <div key={star} className="flex items-center gap-2.5">
-            <span className="w-[30px] text-[12.5px] text-ink-mute">{star}점</span>
-            <div className="h-[7px] flex-1 overflow-hidden rounded-full bg-chipbg">
-              <div className="h-full rounded-full bg-star" style={{ width: `${Math.round((count / max) * 100)}%` }} />
+          <div key={star} className="grid grid-cols-[26px_minmax(0,1fr)_20px] items-center gap-2 text-xs tabular-nums text-ink-mute">
+            <span>{star}점</span>
+            <div className="h-1.5 overflow-hidden rounded-full bg-chipbg">
+              <div className="h-full rounded-full bg-sea" style={{ width: `${width}%` }} />
             </div>
-            <span className="w-[34px] text-right text-xs text-ink-mute/70">{count}</span>
+            <span className="text-right">{count}</span>
           </div>
         );
       })}

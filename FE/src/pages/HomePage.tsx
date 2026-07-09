@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Bookmark } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { useState, type MouseEvent, type ReactNode } from 'react';
 import FilterChips from '../components/FilterChips';
 import FishCard from '../components/FishCard';
@@ -226,7 +226,7 @@ function FeaturedFishCard({ fish }: { fish: FishSummary }) {
           aria-label={bookmarked ? `${fish.name} 저장 해제` : `${fish.name} 저장`}
           aria-pressed={bookmarked}
         >
-          <Bookmark className={bookmarked ? 'h-4 w-4 fill-sea text-sea' : 'h-4 w-4 fill-none text-ink-mute/70'} aria-hidden />
+          <Heart className={bookmarked ? 'h-4 w-4 fill-sea text-sea' : 'h-4 w-4 fill-none text-ink-mute/70'} aria-hidden />
         </button>
       </div>
       <div className="p-3.5">

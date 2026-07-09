@@ -60,14 +60,14 @@ export default function ReviewForm({ open, submitting, error, onClose, onSubmit 
       <div className="max-h-[90vh] w-full max-w-[460px] overflow-y-auto rounded-[18px] bg-white p-[26px]" onClick={(event) => event.stopPropagation()}>
         <div className="mb-1.5 flex items-center justify-between">
           <h2 className="m-0 text-[19px] font-bold text-ink">후기 쓰기</h2>
-          <button type="button" title="닫기" aria-label="닫기" onClick={onClose} className="border-0 bg-transparent p-0 text-[22px] leading-none text-faint">
+          <button type="button" title="닫기" aria-label="닫기" onClick={onClose} className="border-0 bg-transparent p-0 text-[22px] leading-none text-ink-mute/70">
             <X className="h-5 w-5" aria-hidden />
           </button>
         </div>
-        <p className="m-0 mb-[18px] text-[13.5px] text-faint">선택한 생선에 대한 후기를 남겨주세요.</p>
+        <p className="m-0 mb-[18px] text-[13.5px] text-ink-mute/70">선택한 생선에 대한 후기를 남겨주세요.</p>
 
         <form onSubmit={handleSubmit} noValidate>
-          <label className="mb-[7px] block text-[13px] font-semibold text-muted">별점</label>
+          <label className="mb-[7px] block text-[13px] font-semibold text-ink-mute">별점</label>
           <div className="mb-[18px] flex gap-1">
             {[1, 2, 3, 4, 5].map((score) => (
               <button
@@ -76,7 +76,7 @@ export default function ReviewForm({ open, submitting, error, onClose, onSubmit 
                 onClick={() => setForm((prev) => ({ ...prev, rating: score }))}
                 className={[
                   'border-0 bg-transparent p-0 text-3xl leading-none transition',
-                  score <= form.rating ? 'text-accent' : 'text-[#D8DDDF] hover:text-accent',
+                  score <= form.rating ? 'text-star' : 'text-line hover:text-star',
                 ].join(' ')}
                 aria-label={`${score}점`}
               >
@@ -85,18 +85,18 @@ export default function ReviewForm({ open, submitting, error, onClose, onSubmit 
             ))}
           </div>
 
-          <label className="mb-[7px] block text-[13px] font-semibold text-muted">닉네임</label>
+          <label className="mb-[7px] block text-[13px] font-semibold text-ink-mute">닉네임</label>
           <div className="mb-4">
             <input
               maxLength={30}
               value={form.nickname}
               placeholder="익명"
               onChange={(event) => setForm((prev) => ({ ...prev, nickname: event.target.value }))}
-              className="w-full rounded-[10px] border border-line px-[13px] py-[11px] text-sm text-ink outline-none focus:border-brand-600"
+              className="w-full rounded-[10px] border border-line px-[13px] py-[11px] text-sm text-ink outline-none focus:border-sea"
             />
           </div>
 
-          <label className="mb-[7px] block text-[13px] font-semibold text-muted">내용</label>
+          <label className="mb-[7px] block text-[13px] font-semibold text-ink-mute">내용</label>
           <div className="mb-4">
             <textarea
               maxLength={1000}
@@ -104,12 +104,12 @@ export default function ReviewForm({ open, submitting, error, onClose, onSubmit 
               value={form.content}
               placeholder="맛, 식감, 어디서 드셨는지 자유롭게 남겨주세요."
               onChange={(event) => setForm((prev) => ({ ...prev, content: event.target.value }))}
-              className="w-full resize-y rounded-[10px] border border-line px-[13px] py-[11px] text-sm leading-normal text-ink outline-none focus:border-brand-600"
+              className="w-full resize-y rounded-[10px] border border-line px-[13px] py-[11px] text-sm leading-normal text-ink outline-none focus:border-sea"
             />
           </div>
 
-          <label className="mb-[7px] block text-[13px] font-semibold text-muted">
-            이미지 URL <span className="font-normal text-faint">(선택)</span>
+          <label className="mb-[7px] block text-[13px] font-semibold text-ink-mute">
+            이미지 URL <span className="font-normal text-ink-mute/70">(선택)</span>
           </label>
           <div className="mb-4">
             <input
@@ -117,11 +117,11 @@ export default function ReviewForm({ open, submitting, error, onClose, onSubmit 
               value={form.imageUrl}
               placeholder="https://example.com/photo.jpg"
               onChange={(event) => setForm((prev) => ({ ...prev, imageUrl: event.target.value }))}
-              className="w-full rounded-[10px] border border-dashed border-[#D8DDDF] px-[13px] py-[11px] text-sm text-ink outline-none focus:border-brand-600"
+              className="w-full rounded-[10px] border border-dashed border-line px-[13px] py-[11px] text-sm text-ink outline-none focus:border-sea"
             />
           </div>
 
-          <label className="mb-[7px] block text-[13px] font-semibold text-muted">삭제용 비밀번호</label>
+          <label className="mb-[7px] block text-[13px] font-semibold text-ink-mute">삭제용 비밀번호</label>
           <div className="mb-[22px]">
             <input
               minLength={4}
@@ -130,7 +130,7 @@ export default function ReviewForm({ open, submitting, error, onClose, onSubmit 
               value={form.password}
               placeholder="후기 삭제 시 필요해요"
               onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
-              className="w-full rounded-[10px] border border-line px-[13px] py-[11px] text-sm text-ink outline-none focus:border-brand-600"
+              className="w-full rounded-[10px] border border-line px-[13px] py-[11px] text-sm text-ink outline-none focus:border-sea"
             />
           </div>
 
@@ -142,13 +142,13 @@ export default function ReviewForm({ open, submitting, error, onClose, onSubmit 
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 rounded-[10px] border border-line bg-white p-3 text-sm font-semibold text-muted hover:bg-[#F7F9FA]"
+              className="flex-1 rounded-[10px] border border-line bg-white p-3 text-sm font-semibold text-ink-mute hover:bg-chipbg"
             >
               취소
             </button>
             <button
               disabled={submitting}
-              className="flex-[2] rounded-[10px] border-0 bg-brand-600 p-3 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+              className="flex-[2] rounded-[10px] border-0 bg-sea p-3 text-sm font-semibold text-white hover:bg-sea disabled:cursor-not-allowed disabled:bg-slate-300"
               type="submit"
             >
               {submitting ? '등록 중...' : '등록하기'}

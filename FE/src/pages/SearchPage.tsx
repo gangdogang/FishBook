@@ -13,6 +13,8 @@ const seasons: Array<{ value: Season; label: string }> = [
 
 const tastes = ['담백', '기름진', '쫄깃', '고소'];
 
+const months = Array.from({ length: 12 }, (_, index) => index + 1);
+
 const priceLevels = [
   { value: 1, label: '₩' },
   { value: 2, label: '₩₩' },
@@ -26,6 +28,7 @@ export default function SearchPage() {
       search: searchParams.get('search') || undefined,
       season: (searchParams.get('season') || undefined) as Season | undefined,
       taste: searchParams.get('taste') || undefined,
+      month: searchParams.get('month') ? Number(searchParams.get('month')) : undefined,
       priceLevel: searchParams.get('priceLevel') ? Number(searchParams.get('priceLevel')) : undefined,
       sort: ((searchParams.get('sort') || 'popular') as FishSort),
     }),
@@ -36,6 +39,7 @@ export default function SearchPage() {
     params.search ? { key: 'search', label: params.search } : undefined,
     params.season ? { key: 'season', label: seasons.find((season) => season.value === params.season)?.label ?? params.season } : undefined,
     params.taste ? { key: 'taste', label: params.taste } : undefined,
+    params.month ? { key: 'month', label: `${params.month}월 제철` } : undefined,
     params.priceLevel ? { key: 'priceLevel', label: priceLevels.find((price) => price.value === params.priceLevel)?.label ?? String(params.priceLevel) } : undefined,
   ].filter(Boolean) as Array<{ key: string; label: string }>;
 
@@ -63,7 +67,7 @@ export default function SearchPage() {
         <aside className="w-full flex-none rounded-card border border-line bg-white px-[22px] py-5 lg:sticky lg:top-[90px] lg:w-60">
           <div className="mb-[18px] flex items-center justify-between">
             <span className="text-[15px] font-bold text-ink">필터</span>
-            <button type="button" onClick={resetFilters} className="text-[12.5px] font-semibold text-brand-700 transition hover:text-brand-500">
+            <button type="button" onClick={resetFilters} className="text-[12.5px] font-semibold text-sea transition hover:text-sea">
               초기화
             </button>
           </div>
@@ -73,9 +77,21 @@ export default function SearchPage() {
               <FilterChip
                 key={season.value}
                 active={params.season === season.value}
-                onClick={() => update({ season: params.season === season.value ? undefined : season.value })}
+                onClick={() => update({ season: params.season === season.value ? undefined : season.value, month: undefined })}
               >
                 {season.label}
+              </FilterChip>
+            ))}
+          </FilterGroup>
+
+          <FilterGroup label="제철 달">
+            {months.map((month) => (
+              <FilterChip
+                key={month}
+                active={params.month === month}
+                onClick={() => update({ month: params.month === month ? undefined : month, season: undefined })}
+              >
+                {month}월
               </FilterChip>
             ))}
           </FilterGroup>
@@ -103,7 +119,7 @@ export default function SearchPage() {
 
         <section className="min-w-[280px] flex-1">
           <div className="mb-[18px] flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <span className="text-[15px] text-muted">
+            <span className="text-[15px] text-ink-mute">
               {params.search ? <b className="font-bold text-ink">'{params.search}'</b> : null}
               {params.search ? ' ' : null}
               검색 결과 <b className="font-bold text-ink">{isLoading ? '-' : fishes.length}</b>건
@@ -111,7 +127,7 @@ export default function SearchPage() {
             <select
               value={params.sort}
               onChange={(event) => update({ sort: event.target.value as FishSort })}
-              className="h-10 w-fit rounded-[10px] border border-line bg-white px-[13px] text-sm text-ink outline-none transition hover:border-brand-500 focus:border-brand-500"
+              className="h-10 w-fit rounded-[10px] border border-line bg-white px-[13px] text-sm text-ink outline-none transition hover:border-sea focus:border-sea"
             >
               <option value="popular">인기순</option>
               <option value="name">이름순</option>
@@ -125,7 +141,7 @@ export default function SearchPage() {
                   key={pill.key}
                   type="button"
                   onClick={() => update({ [pill.key]: undefined })}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1.5 text-[13px] font-semibold text-brand-700 transition hover:bg-[#D8EEEB]"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-sea-soft px-3 py-1.5 text-[13px] font-semibold text-sea transition hover:bg-sea-soft"
                 >
                   {pill.label}
                   <span className="text-sm leading-none" aria-hidden>
@@ -156,7 +172,7 @@ export default function SearchPage() {
 function FilterGroup({ label, children, className = 'mb-5' }: { label: string; children: ReactNode; className?: string }) {
   return (
     <div className={className}>
-      <div className="mb-2.5 text-[12.5px] font-semibold text-faint">{label}</div>
+      <div className="mb-2.5 text-[12.5px] font-semibold text-ink-mute/70">{label}</div>
       <div className="flex flex-wrap gap-[7px]">{children}</div>
     </div>
   );
@@ -169,8 +185,8 @@ function FilterChip({ active, onClick, children }: { active: boolean; onClick: (
       onClick={onClick}
       className={
         active
-          ? 'inline-flex items-center justify-center rounded-full border border-transparent bg-brand-500 px-3 py-[7px] text-[13px] font-semibold text-white transition'
-          : 'inline-flex items-center justify-center rounded-full border border-line bg-white px-3 py-[7px] text-[13px] font-medium text-ink transition hover:border-brand-500 hover:text-brand-700'
+          ? 'inline-flex items-center justify-center rounded-full border border-transparent bg-sea px-3 py-[7px] text-[13px] font-semibold text-white transition'
+          : 'inline-flex items-center justify-center rounded-full border border-line bg-white px-3 py-[7px] text-[13px] font-medium text-ink transition hover:border-sea hover:text-sea'
       }
     >
       {children}
@@ -179,20 +195,20 @@ function FilterChip({ active, onClick, children }: { active: boolean; onClick: (
 }
 
 function StateText({ text }: { text: string }) {
-  return <div className="rounded-card border border-line bg-white p-8 text-center text-muted">{text}</div>;
+  return <div className="rounded-card border border-line bg-white p-8 text-center text-ink-mute">{text}</div>;
 }
 
 function EmptyState({ onReset }: { onReset: () => void }) {
   return (
-    <div className="rounded-card border border-dashed border-[#E2E7E9] px-5 py-[72px] text-center">
-      <div className="mx-auto mb-5 flex h-[84px] w-[84px] items-center justify-center rounded-full bg-[#F7F9FA]">
+    <div className="rounded-card border border-dashed border-line px-5 py-[72px] text-center">
+      <div className="mx-auto mb-5 flex h-[84px] w-[84px] items-center justify-center rounded-full bg-chipbg">
         <svg viewBox="0 0 64 40" width="46" height="29" fill="none" stroke="#C2C8CC" strokeWidth="1.6" aria-hidden>
           <path d="M2 20 C16 3, 42 3, 52 20 C42 37, 16 37, 2 20 Z" />
           <path d="M50 20 L63 9 L63 31 Z" />
         </svg>
       </div>
       <h3 className="mb-2 text-lg font-bold text-ink">검색 결과가 없어요</h3>
-      <p className="mb-5 text-[14.5px] leading-[1.5] text-muted">
+      <p className="mb-5 text-[14.5px] leading-[1.5] text-ink-mute">
         검색어나 필터를 바꿔보세요.
         <br />
         예: <b className="font-bold text-ink">광어, 방어, 연어</b>
@@ -200,7 +216,7 @@ function EmptyState({ onReset }: { onReset: () => void }) {
       <button
         type="button"
         onClick={onReset}
-        className="rounded-[10px] border border-brand-500 bg-white px-[22px] py-[11px] text-sm font-semibold text-brand-700 transition hover:bg-brand-50"
+        className="rounded-[10px] border border-sea bg-white px-[22px] py-[11px] text-sm font-semibold text-sea transition hover:bg-sea-soft"
       >
         필터 초기화
       </button>

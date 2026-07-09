@@ -1,0 +1,1048 @@
+<title>FishNote 디자인 제안</title>
+<style>
+  :root {
+    --bg: #F2F5F6;
+    --surface: #FFFFFF;
+    --ink: #16232A;
+    --muted: #5C6E77;
+    --line: #E0E7EA;
+    --accent: #0F6E84;
+    --accent-soft: #E3F0F3;
+    --code-bg: #F0F4F5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0E1418;
+      --surface: #151D22;
+      --ink: #E5ECEF;
+      --muted: #8FA1A9;
+      --line: #223038;
+      --accent: #57B0C4;
+      --accent-soft: #14313A;
+      --code-bg: #101B20;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E1418;
+    --surface: #151D22;
+    --ink: #E5ECEF;
+    --muted: #8FA1A9;
+    --line: #223038;
+    --accent: #57B0C4;
+    --accent-soft: #14313A;
+    --code-bg: #101B20;
+  }
+  :root[data-theme="light"] {
+    --bg: #F2F5F6;
+    --surface: #FFFFFF;
+    --ink: #16232A;
+    --muted: #5C6E77;
+    --line: #E0E7EA;
+    --accent: #0F6E84;
+    --accent-soft: #E3F0F3;
+    --code-bg: #F0F4F5;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 24px 96px; }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+  /* ---------- 문서 상단 ---------- */
+  .doc-head { padding: 64px 0 40px; border-bottom: 1px solid var(--line); }
+  .eyebrow {
+    font-size: 12px; font-weight: 700; letter-spacing: .08em;
+    color: var(--accent); margin: 0 0 12px;
+  }
+  h1 {
+    font-size: 30px; line-height: 1.35; font-weight: 800;
+    margin: 0 0 14px; letter-spacing: -.01em; text-wrap: balance;
+  }
+  .doc-sub { color: var(--muted); max-width: 640px; margin: 0 0 24px; }
+  .toc { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 13px; font-weight: 600; }
+  .toc a { color: var(--muted); }
+  .toc a:hover { color: var(--accent); text-decoration: none; }
+
+  /* ---------- 섹션 공통 ---------- */
+  section { padding-top: 56px; scroll-margin-top: 24px; }
+  .sec-label {
+    font-size: 12px; font-weight: 700; letter-spacing: .08em;
+    color: var(--accent); margin: 0 0 8px;
+  }
+  h2 { font-size: 22px; font-weight: 800; margin: 0 0 10px; letter-spacing: -.01em; }
+  .sec-desc { color: var(--muted); max-width: 640px; margin: 0 0 28px; }
+  h3.sub { font-size: 15px; font-weight: 700; margin: 36px 0 14px; }
+
+  /* ---------- 원칙 카드 ---------- */
+  .principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .principle {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 14px; padding: 22px 20px;
+  }
+  .principle strong { display: block; font-size: 16px; margin-bottom: 8px; }
+  .principle p { margin: 0; color: var(--muted); font-size: 14px; }
+
+  /* ---------- 스와치 ---------- */
+  .swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .swatch { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .swatch .chip-color { height: 56px; border-bottom: 1px solid var(--line); }
+  .swatch .info { padding: 10px 12px; }
+  .swatch .info b { display: block; font-size: 13px; }
+  .swatch .info span { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  /* ---------- 표 ---------- */
+  .tbl-scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12px; letter-spacing: .04em; color: var(--muted); font-weight: 700; background: var(--code-bg); }
+  tr:last-child td { border-bottom: none; }
+  td code, .note code {
+    background: var(--code-bg); border: 1px solid var(--line);
+    padding: 1px 6px; border-radius: 5px; font-size: 12.5px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  pre {
+    background: var(--code-bg); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 18px; overflow-x: auto; font-size: 12.5px; line-height: 1.6;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  /* ---------- 포인트 리스트 ---------- */
+  .points { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 6px; }
+  .points li { position: relative; padding-left: 16px; font-size: 14px; color: var(--muted); }
+  .points li::before {
+    content: ""; position: absolute; left: 0; top: .62em;
+    width: 7px; height: 7px; border-radius: 2px; background: var(--accent);
+  }
+  .points li b { color: var(--ink); font-weight: 700; }
+
+  /* ---------- 브라우저 프레임 ---------- */
+  .frame { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; margin-top: 18px; }
+  .frame-bar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; border-bottom: 1px solid var(--line); background: var(--code-bg);
+  }
+  .frame-bar .dots { display: flex; gap: 5px; }
+  .frame-bar .dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); }
+  .frame-bar .url {
+    flex: 0 1 auto; font-size: 12px; color: var(--muted);
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 7px; padding: 3px 12px; font-family: ui-monospace, Menlo, monospace;
+  }
+  .frame-scroll { overflow-x: auto; }
+  .frame-scroll > .screen { min-width: 920px; }
+  .frame-mobile { max-width: 402px; margin-left: auto; margin-right: auto; }
+
+  /* ================================================== */
+  /* 제품 화면(목업) — 라이트 고정 토큰                    */
+  /* ================================================== */
+  .screen {
+    --p-bg: #F6F8F9; --p-surface: #FFFFFF; --p-ink: #1A2B33;
+    --p-muted: #5F7078; --p-line: #E3EAED; --p-accent: #0F6E84;
+    --p-accent-soft: #E3F0F3; --p-star: #E0A030; --p-chip: #EEF3F5;
+    background: var(--p-bg); color: var(--p-ink); padding: 0 0 40px;
+  }
+  .screen * { box-sizing: border-box; }
+
+  .p-head {
+    display: flex; align-items: center; gap: 28px;
+    background: var(--p-surface); border-bottom: 1px solid var(--p-line);
+    padding: 14px 32px;
+  }
+  .p-logo { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 17px; letter-spacing: -.01em; }
+  .p-logo svg { width: 26px; height: 14px; color: var(--p-accent); }
+  .p-nav { display: flex; gap: 22px; font-size: 14px; font-weight: 600; color: var(--p-muted); }
+  .p-nav .on { color: var(--p-accent); }
+  .p-head-search {
+    margin-left: auto; display: flex; align-items: center; gap: 8px;
+    border: 1px solid var(--p-line); border-radius: 999px;
+    padding: 7px 16px; font-size: 13px; color: var(--p-muted); background: var(--p-bg);
+    min-width: 200px;
+  }
+  .p-body { padding: 0 32px; max-width: 980px; margin: 0 auto; }
+
+  /* 히어로 */
+  .p-hero { text-align: center; padding: 48px 0 40px; }
+  .p-hero h1 { font-size: 28px; font-weight: 800; margin: 0 0 8px; letter-spacing: -.01em; }
+  .p-hero p { margin: 0 0 22px; color: var(--p-muted); font-size: 15px; }
+  .p-search-big {
+    display: flex; align-items: center; gap: 10px; max-width: 520px; margin: 0 auto 14px;
+    background: var(--p-surface); border: 1.5px solid var(--p-line);
+    border-radius: 14px; padding: 13px 8px 13px 18px;
+  }
+  .p-search-big .ph-text { flex: 1; text-align: left; color: var(--p-muted); font-size: 15px; }
+  .p-search-big .btn { flex: none; }
+  .p-hot { font-size: 13px; color: var(--p-muted); display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap; }
+  .p-hot .tag {
+    background: var(--p-chip); border-radius: 999px; padding: 4px 12px;
+    font-weight: 600; color: var(--p-ink); font-size: 13px;
+  }
+
+  /* 버튼/뱃지/칩 */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--p-accent); color: #fff; font-weight: 700; font-size: 14px;
+    border: none; border-radius: 10px; padding: 10px 18px; cursor: default;
+  }
+  .btn.ghost { background: var(--p-surface); color: var(--p-ink); border: 1px solid var(--p-line); }
+  .badge-now {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--p-accent); color: #fff;
+    font-size: 12px; font-weight: 700; border-radius: 999px; padding: 3px 10px;
+  }
+  .badge-now::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: #fff; }
+  .badge-season {
+    display: inline-flex; align-items: center;
+    border: 1px solid var(--p-line); color: var(--p-muted); background: var(--p-surface);
+    font-size: 12px; font-weight: 600; border-radius: 999px; padding: 3px 10px;
+  }
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: var(--p-chip); color: var(--p-ink);
+    font-size: 13px; font-weight: 600; border-radius: 999px; padding: 5px 13px;
+  }
+  .chip.sel { background: var(--p-accent); color: #fff; }
+  .chip .car { font-size: 10px; color: var(--p-muted); }
+  .chip.sel .car { color: #fff; }
+  .stars { font-size: 13px; font-weight: 700; color: var(--p-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .stars .st { color: var(--p-star); }
+  .stars em { font-style: normal; color: var(--p-muted); font-weight: 500; }
+  .price { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .price em { font-style: normal; color: var(--p-muted); font-weight: 500; }
+
+  /* 섹션 헤더 */
+  .p-sec { display: flex; align-items: baseline; gap: 12px; margin: 36px 0 14px; }
+  .p-sec h3 { font-size: 19px; font-weight: 800; margin: 0; letter-spacing: -.01em; }
+  .p-sec .cnt { color: var(--p-muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+  .p-sec .more { margin-left: auto; font-size: 13px; font-weight: 600; color: var(--p-accent); }
+
+  /* 카드 */
+  .cards { display: grid; gap: 14px; }
+  .cards.c4 { grid-template-columns: repeat(4, 1fr); }
+  .cards.c3 { grid-template-columns: repeat(3, 1fr); }
+  .cards.c2 { grid-template-columns: repeat(2, 1fr); }
+  .fcard {
+    background: var(--p-surface); border: 1px solid var(--p-line);
+    border-radius: 14px; overflow: hidden;
+  }
+  .fcard-ph { position: relative; aspect-ratio: 4 / 3; display: grid; place-items: center; }
+  .fcard-ph svg.fishmark { width: 42%; height: auto; opacity: .5; }
+  .fcard-ph .badge-now { position: absolute; left: 10px; top: 10px; }
+  .fcard-ph .save {
+    position: absolute; right: 8px; top: 8px;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(255,255,255,.9); border: 1px solid var(--p-line);
+    display: grid; place-items: center; font-size: 15px; color: var(--p-muted);
+    line-height: 1; cursor: default;
+  }
+  .fcard-ph .save.on { color: var(--p-accent); }
+  .fcard-body { padding: 12px 14px 14px; }
+  .fcard-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .fcard-top h4 { margin: 0; font-size: 16px; font-weight: 700; }
+  .fcard-desc {
+    margin: 3px 0 10px; font-size: 13px; color: var(--p-muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .fcard-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
+  /* 사진 플레이스홀더 톤 */
+  .ph-cool   { background: #DCE7EB; color: #8FA9B3; }
+  .ph-silver { background: #E3E7EA; color: #9BA7AE; }
+  .ph-deep   { background: #D3E1E7; color: #7F9CAA; }
+  .ph-salmon { background: #F3DED4; color: #C99C87; }
+  .ph-rose   { background: #F0DFDF; color: #C39B9B; }
+
+  /* 필터 행 */
+  .filter-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 0 16px; }
+  .filter-row .gap { flex: 1; }
+  .seg { display: inline-flex; border: 1px solid var(--p-line); border-radius: 10px; overflow: hidden; background: var(--p-surface); }
+  .seg span { padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--p-muted); }
+  .seg .on { background: var(--p-accent-soft); color: var(--p-accent); }
+
+  /* 상세 */
+  .d-top { display: grid; grid-template-columns: 1.05fr 1fr; gap: 28px; padding-top: 28px; }
+  .d-gallery .main { border-radius: 16px; aspect-ratio: 4 / 3; display: grid; place-items: center; position: relative; overflow: hidden; }
+  .d-gallery .main svg { width: 38%; opacity: .5; }
+  .d-thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px; }
+  .d-thumbs i { display: block; aspect-ratio: 4 / 3; border-radius: 9px; }
+  .d-thumbs i.cur { outline: 2px solid var(--p-accent); outline-offset: 1px; }
+  .d-info .crumb { font-size: 13px; color: var(--p-muted); margin-bottom: 12px; }
+  .d-info h2 { font-size: 26px; font-weight: 800; margin: 10px 0 2px; letter-spacing: -.01em; }
+  .d-info .en { color: var(--p-muted); font-size: 14px; margin: 0 0 10px; }
+  .d-info .desc { font-size: 15px; margin: 0 0 12px; }
+  .spec {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    border: 1px solid var(--p-line); border-radius: 14px; background: var(--p-surface);
+    margin: 16px 0; overflow: hidden;
+  }
+  .spec > div { padding: 12px 14px; border-right: 1px solid var(--p-line); }
+  .spec > div:last-child { border-right: none; }
+  .spec b { display: block; font-size: 12px; color: var(--p-muted); font-weight: 600; margin-bottom: 5px; }
+  .spec .v { font-size: 14px; font-weight: 700; }
+  .d-actions { display: flex; gap: 10px; }
+
+  /* 시즌 바 */
+  .sbar { display: grid; grid-template-columns: repeat(12, 1fr); gap: 3px; margin-top: 6px; }
+  .sbar i { display: block; }
+  .sbar .cell { height: 8px; border-radius: 3px; background: var(--p-chip); position: relative; }
+  .sbar .cell.act { background: var(--p-accent); }
+  .sbar .cell.now::after {
+    content: "지금"; position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+    font-size: 10px; font-weight: 700; color: var(--p-accent); white-space: nowrap;
+  }
+  .sbar .m { font-size: 10px; color: var(--p-muted); text-align: center; margin-top: 3px; font-variant-numeric: tabular-nums; }
+  .sbar-wrap { padding-top: 18px; }
+
+  /* 팁 */
+  .tips { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .tips li {
+    background: var(--p-surface); border: 1px solid var(--p-line); border-radius: 12px;
+    padding: 12px 16px; font-size: 14px; display: flex; gap: 10px; align-items: flex-start;
+  }
+  .tips li::before { content: "🥢"; font-size: 14px; line-height: 1.7; }
+
+  /* 후기 */
+  .rev-grid { display: grid; grid-template-columns: 250px 1fr; gap: 20px; align-items: start; }
+  .rev-summary { background: var(--p-surface); border: 1px solid var(--p-line); border-radius: 14px; padding: 18px; }
+  .rev-summary .big { font-size: 34px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .rev-summary .big small { font-size: 15px; color: var(--p-muted); font-weight: 600; }
+  .rev-summary .st-row { color: var(--p-star); font-size: 15px; letter-spacing: 1px; margin: 2px 0 4px; }
+  .rev-summary .cnt { font-size: 13px; color: var(--p-muted); margin-bottom: 14px; }
+  .dist { display: grid; gap: 5px; }
+  .dist-row { display: grid; grid-template-columns: 26px 1fr 20px; align-items: center; gap: 8px; font-size: 12px; color: var(--p-muted); font-variant-numeric: tabular-nums; }
+  .dist-row .track { height: 6px; border-radius: 3px; background: var(--p-chip); overflow: hidden; }
+  .dist-row .fill { display: block; height: 100%; background: var(--p-accent); border-radius: 3px; }
+  .rev-list { display: grid; gap: 12px; }
+  .rev-sort { display: flex; gap: 8px; margin-bottom: 2px; }
+  .rev-card { background: var(--p-surface); border: 1px solid var(--p-line); border-radius: 14px; padding: 16px 18px; }
+  .rev-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .rev-head .avatar {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--p-accent-soft);
+    color: var(--p-accent); font-weight: 800; font-size: 14px; display: grid; place-items: center;
+  }
+  .rev-head b { font-size: 14px; }
+  .rev-head .meta { font-size: 12px; color: var(--p-muted); }
+  .rev-head .del { margin-left: auto; font-size: 12px; color: var(--p-muted); }
+  .rev-card p { margin: 0 0 12px; font-size: 14px; }
+  .helpful {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid var(--p-line); border-radius: 999px; background: var(--p-surface);
+    font-size: 13px; font-weight: 600; color: var(--p-muted); padding: 5px 13px;
+  }
+  .helpful.done { border-color: var(--p-accent); color: var(--p-accent); background: var(--p-accent-soft); }
+
+  /* 후기 폼 */
+  .rev-form { background: var(--p-surface); border: 1px solid var(--p-line); border-radius: 14px; padding: 18px; margin-top: 14px; }
+  .rev-form h5 { margin: 0 0 14px; font-size: 15px; font-weight: 700; }
+  .f-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .f-field label { display: block; font-size: 12px; font-weight: 700; color: var(--p-muted); margin-bottom: 5px; }
+  .f-field label em { font-style: normal; font-weight: 500; }
+  .f-input {
+    border: 1px solid var(--p-line); border-radius: 10px; background: var(--p-bg);
+    padding: 10px 12px; font-size: 14px; color: var(--p-muted);
+  }
+  .f-input.area { min-height: 74px; }
+  .f-input { display: block; }
+  .f-help { font-size: 12px; color: var(--p-muted); margin-top: 4px; }
+  .f-stars { font-size: 20px; letter-spacing: 3px; color: var(--p-star); }
+  .f-stars .off { color: var(--p-line); }
+  .f-submit { display: flex; justify-content: flex-end; margin-top: 4px; }
+
+  /* 캘린더 */
+  .months { display: grid; grid-template-columns: repeat(12, 1fr); gap: 6px; margin: 24px 0 20px; }
+  .month {
+    text-align: center; background: var(--p-surface); border: 1px solid var(--p-line);
+    border-radius: 12px; padding: 9px 2px 7px;
+  }
+  .month b { display: block; font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .month span { font-size: 11px; color: var(--p-muted); font-variant-numeric: tabular-nums; }
+  .month.sel { background: var(--p-accent); border-color: var(--p-accent); }
+  .month.sel b, .month.sel span { color: #fff; }
+
+  /* 모바일 목업 */
+  .m-head { display: flex; align-items: center; gap: 12px; background: var(--p-surface); border-bottom: 1px solid var(--p-line); padding: 12px 16px; }
+  .m-head .p-logo { font-size: 16px; }
+  .m-head .ic { margin-left: auto; display: flex; gap: 14px; color: var(--p-muted); }
+  .m-body { padding: 0 16px; }
+  .m-hero { padding: 22px 0 4px; }
+  .m-hero h1 { font-size: 21px; font-weight: 800; margin: 0 0 4px; letter-spacing: -.01em; }
+  .m-hero p { margin: 0 0 14px; color: var(--p-muted); font-size: 13px; }
+  .m-search {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--p-surface); border: 1.5px solid var(--p-line);
+    border-radius: 12px; padding: 12px 14px; color: var(--p-muted); font-size: 14px;
+  }
+  .m-row { display: flex; gap: 10px; overflow: hidden; }
+  .m-row .fcard { flex: 0 0 46%; }
+  .m-cards { display: grid; gap: 12px; }
+
+  /* 상태(스켈레톤/빈 상태) */
+  .states { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .state-box { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+  .state-box h4 { margin: 0 0 12px; font-size: 14px; }
+  .skel { display: grid; gap: 8px; }
+  .skel i { display: block; border-radius: 8px; background: var(--code-bg); }
+  .skel .img { aspect-ratio: 4 / 3; border-radius: 12px; }
+  .skel .l1 { height: 14px; width: 45%; }
+  .skel .l2 { height: 11px; width: 80%; }
+  .empty { text-align: center; padding: 26px 10px; }
+  .empty .glyph { font-size: 26px; margin-bottom: 8px; }
+  .empty b { display: block; font-size: 14px; margin-bottom: 4px; }
+  .empty p { margin: 0 0 14px; font-size: 13px; color: var(--muted); }
+  .empty .fake-btn {
+    display: inline-block; border: 1px solid var(--line); border-radius: 10px;
+    padding: 8px 16px; font-size: 13px; font-weight: 700; color: var(--accent);
+  }
+
+  /* 질문 박스 */
+  .qbox {
+    margin-top: 56px; background: var(--surface); border: 1px solid var(--line);
+    border-left: 4px solid var(--accent); border-radius: 14px; padding: 24px 26px;
+  }
+  .qbox h2 { margin-top: 0; }
+  .qbox ol { margin: 0; padding-left: 20px; display: grid; gap: 10px; }
+  .qbox li { color: var(--muted); }
+  .qbox li b { color: var(--ink); }
+
+  .note { font-size: 13px; color: var(--muted); margin-top: 10px; }
+
+  @media (max-width: 760px) {
+    .principles { grid-template-columns: 1fr; }
+    .rev-grid { grid-template-columns: 1fr; }
+    .states { grid-template-columns: 1fr; }
+    .d-top { grid-template-columns: 1fr; }
+    h1 { font-size: 25px; }
+  }
+</style>
+
+<svg style="display:none" aria-hidden="true">
+  <symbol id="fish" viewBox="0 0 48 24">
+    <path d="M4 12c8-9 22-9 30 0-8 9-22 9-30 0Z" fill="currentColor"/>
+    <path d="M33 12l11-7.5v15L33 12Z" fill="currentColor"/>
+    <circle cx="11" cy="10" r="1.7" fill="#fff"/>
+  </symbol>
+  <symbol id="mag" viewBox="0 0 16 16">
+    <circle cx="7" cy="7" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+    <path d="M10.6 10.6L14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
+<div class="wrap">
+
+  <header class="doc-head">
+    <p class="eyebrow">FISHNOTE · 회 도감 · 디자인 제안 v1</p>
+    <h1>모르는 생선 앞에서 3초 — 누구나 쓰는 회 도감</h1>
+    <p class="doc-sub">
+      기획.md와 API 명세(v1 확장)를 근거로, 기존 FE 화면은 보지 않고 처음부터 다시 그린 제안입니다.
+      타겟은 회 입문자·횟집 손님·수산시장 구경객 — 전문 지식 없이도 "이 생선 뭐지? 지금 제철인가?"에
+      바로 답을 주는 것이 이 디자인의 유일한 목표입니다.
+    </p>
+    <nav class="toc">
+      <a href="#principles">① 디자인 원칙</a>
+      <a href="#foundation">② 파운데이션</a>
+      <a href="#screens">③ 화면 설계</a>
+      <a href="#ux">④ UX 디테일</a>
+      <a href="#impl">⑤ 구현 노트</a>
+      <a href="#questions">⑥ 확인 필요</a>
+    </nav>
+  </header>
+
+  <!-- ================= ① 원칙 ================= -->
+  <section id="principles">
+    <p class="sec-label">① 디자인 원칙</p>
+    <h2>세 가지만 지킵니다</h2>
+    <p class="sec-desc">기능이 이미 잘 정리되어 있으므로(도감·검색·캘린더·후기), 디자인은 더하지 않고 정리하는 역할만 합니다.</p>
+    <div class="principles">
+      <div class="principle">
+        <strong>"지금 제철"이 첫 번째 정보</strong>
+        <p>색으로 강조하는 건 딱 하나 — 지금 제철 뱃지와 주요 버튼뿐. 나머지 정보(맛·가격·별점)는 회색 계열로 조용히 받쳐줍니다. 강조가 하나면 눈이 갈 곳이 명확해집니다.</p>
+      </div>
+      <div class="principle">
+        <strong>전문용어 제로</strong>
+        <p>월 배열 <code>[11,12,1,2]</code>는 "제철 11–2월"로, 가격 레벨 1~3은 "₩ 부담 없는 / ₩₩ 보통 / ₩₩₩ 특별한 날"로. 데이터를 사람의 말로 번역하는 것이 이 앱 디자인의 절반입니다.</p>
+      </div>
+      <div class="principle">
+        <strong>한 화면, 한 가지 일</strong>
+        <p>홈은 찾기, 상세는 알기, 캘린더는 고르기. 화면마다 목적을 하나로 좁히고 그 외 요소는 뺍니다. 히어로·배너·팝업 같은 장식성 요소는 넣지 않습니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ② 파운데이션 ================= -->
+  <section id="foundation">
+    <p class="sec-label">② 파운데이션</p>
+    <h2>바닷빛 하나, 나머지는 안개색</h2>
+    <p class="sec-desc">
+      포인트 컬러는 "물빛" 청록 하나입니다. 새벽 수산시장의 물빛에서 가져왔고, 신선함·신뢰를 동시에 줍니다.
+      별점의 호박색은 별점 전용 의미 색이라 포인트로 치지 않습니다.
+    </p>
+
+    <div class="swatches">
+      <div class="swatch"><div class="chip-color" style="background:#0F6E84"></div><div class="info"><b>물빛</b><span>#0F6E84 · 제철 뱃지 · 버튼 · 링크</span></div></div>
+      <div class="swatch"><div class="chip-color" style="background:#1A2B33"></div><div class="info"><b>바다 잉크</b><span>#1A2B33 · 본문 텍스트</span></div></div>
+      <div class="swatch"><div class="chip-color" style="background:#5F7078"></div><div class="info"><b>물안개</b><span>#5F7078 · 보조 텍스트</span></div></div>
+      <div class="swatch"><div class="chip-color" style="background:#F6F8F9"></div><div class="info"><b>새벽 안개</b><span>#F6F8F9 · 페이지 배경</span></div></div>
+      <div class="swatch"><div class="chip-color" style="background:#E3EAED"></div><div class="info"><b>라인</b><span>#E3EAED · 경계선 · 칩 배경</span></div></div>
+      <div class="swatch"><div class="chip-color" style="background:#E0A030"></div><div class="info"><b>호박</b><span>#E0A030 · 별점 전용</span></div></div>
+    </div>
+
+    <h3 class="sub">타이포그래피 — Pretendard, 굵기로만 위계</h3>
+    <div class="tbl-scroll">
+      <table>
+        <tr><th>역할</th><th>크기 / 굵기</th><th>쓰임</th></tr>
+        <tr><td><span style="font-size:28px;font-weight:800">디스플레이</span></td><td>28px / 800</td><td>홈 히어로, 상세 생선 이름</td></tr>
+        <tr><td><span style="font-size:19px;font-weight:800">타이틀</span></td><td>19px / 800</td><td>섹션 제목</td></tr>
+        <tr><td><span style="font-size:15px">본문</span></td><td>15px / 400 · 행간 1.7</td><td>설명·후기 (모바일 최소 15px 유지)</td></tr>
+        <tr><td><span style="font-size:13px;color:var(--muted)">캡션</span></td><td>13px / 400~600</td><td>메타 정보, 헬퍼 텍스트</td></tr>
+        <tr><td><span style="font-size:12px;font-weight:700">라벨</span></td><td>12px / 700</td><td>뱃지·칩 (숫자는 tabular-nums)</td></tr>
+      </table>
+    </div>
+    <p class="note">서체는 Pretendard 셀프호스팅 권장(웹폰트 1개만). 라운드는 카드 14px · 칩 999px, 간격은 4px 그리드.</p>
+
+    <h3 class="sub">핵심 컴포넌트 — 데이터를 말로 번역하는 부품들</h3>
+    <div class="tbl-scroll"><div class="frame"><div class="screen" style="min-width:0"><div class="p-body" style="padding-top:26px">
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:22px">
+        <div>
+          <b style="font-size:12px;color:var(--p-muted)">제철 표시 — 2가지 상태뿐</b>
+          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+            <span class="badge-now">지금 제철</span>
+            <span class="badge-season">제철 11–2월</span>
+          </div>
+          <p class="note" style="color:var(--p-muted)">"지금 제철"은 <code>seasonMonths</code>에 현재 월이 있으면 클라이언트에서 계산. 유일하게 물빛을 채워 쓰는 뱃지.</p>
+        </div>
+        <div>
+          <b style="font-size:12px;color:var(--p-muted)">가격대 — 기호 + 말</b>
+          <div style="display:flex;gap:16px;margin-top:8px;flex-wrap:wrap">
+            <span class="price">₩ <em>부담 없는</em></span>
+            <span class="price">₩₩ <em>보통</em></span>
+            <span class="price">₩₩₩ <em>특별한 날</em></span>
+          </div>
+          <p class="note" style="color:var(--p-muted)"><code>priceLevel 1~3</code>을 기호로만 두지 않고 항상 말을 붙입니다. 기호만으론 기준을 모르니까요.</p>
+        </div>
+        <div>
+          <b style="font-size:12px;color:var(--p-muted)">맛 태그 · 별점</b>
+          <div style="display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap">
+            <span class="chip">담백</span><span class="chip">쫄깃</span><span class="chip sel">기름진</span>
+            <span class="stars"><span class="st">★</span> 4.3 <em>(12)</em></span>
+          </div>
+          <p class="note" style="color:var(--p-muted)">칩은 필터에서 선택되면 물빛 채움. 별점은 항상 숫자+개수 병기(아이콘만 쓰지 않음).</p>
+        </div>
+        <div>
+          <b style="font-size:12px;color:var(--p-muted)">시즌 바 — 상세 페이지용</b>
+          <div class="sbar-wrap">
+            <div class="sbar">
+              <i><span class="cell"></span><span class="m">1</span></i><i><span class="cell"></span><span class="m">2</span></i>
+              <i><span class="cell"></span><span class="m">3</span></i><i><span class="cell"></span><span class="m">4</span></i>
+              <i><span class="cell"></span><span class="m">5</span></i><i><span class="cell act"></span><span class="m">6</span></i>
+              <i><span class="cell act now"></span><span class="m">7</span></i><i><span class="cell act"></span><span class="m">8</span></i>
+              <i><span class="cell"></span><span class="m">9</span></i><i><span class="cell"></span><span class="m">10</span></i>
+              <i><span class="cell"></span><span class="m">11</span></i><i><span class="cell"></span><span class="m">12</span></i>
+            </div>
+          </div>
+          <p class="note" style="color:var(--p-muted)">12칸 중 제철 월만 채우고, 오늘이 속한 달 위에 "지금" 마커. 글보다 빨리 읽힙니다.</p>
+        </div>
+      </div>
+
+    </div></div></div></div>
+  </section>
+
+  <!-- ================= ③ 화면 ================= -->
+  <section id="screens">
+    <p class="sec-label">③ 화면 설계</p>
+    <h2>다섯 화면, 하나의 문법</h2>
+    <p class="sec-desc">모든 화면이 같은 카드·뱃지·칩을 재사용합니다. 아래 목업의 사진 자리는 시안용 플레이스홀더이며, 실서비스는 4:3 크롭 실사 사진이 들어갑니다.</p>
+
+    <!-- ---------- 홈 ---------- -->
+    <h3 class="sub">1. 홈 — 검색 히어로 → 이달의 제철 → 전체 도감</h3>
+    <div class="frame"><div class="frame-bar"><span class="dots"><i></i><i></i><i></i></span><span class="url">fishnote.kr</span></div>
+    <div class="frame-scroll"><div class="screen">
+
+      <div class="p-head">
+        <span class="p-logo"><svg><use href="#fish"/></svg>FishNote</span>
+        <nav class="p-nav"><span class="on">도감</span><span>제철 캘린더</span><span>저장한 도감</span></nav>
+      </div>
+
+      <div class="p-body">
+        <div class="p-hero">
+          <h1>오늘 이 회, 무슨 생선일까요?</h1>
+          <p>이름·제철·맛·가격대까지, 3초면 확인해요</p>
+          <div class="p-search-big">
+            <svg width="16" height="16" style="color:var(--p-muted)"><use href="#mag"/></svg>
+            <span class="ph-text">생선 이름으로 찾기 — 예: 광어</span>
+            <span class="btn">검색</span>
+          </div>
+          <div class="p-hot">많이 찾는 생선 <span class="tag">광어</span><span class="tag">방어</span><span class="tag">연어</span><span class="tag">참돔</span></div>
+        </div>
+
+        <div class="p-sec">
+          <h3>7월, 지금이 제철이에요</h3>
+          <span class="more">제철 캘린더 →</span>
+        </div>
+        <div class="cards c4">
+          <article class="fcard">
+            <div class="fcard-ph ph-deep"><svg class="fishmark"><use href="#fish"/></svg><span class="badge-now">지금 제철</span><span class="save">♡</span></div>
+            <div class="fcard-body">
+              <div class="fcard-top"><h4>민어</h4><span class="stars"><span class="st">★</span> 4.8 <em>(6)</em></span></div>
+              <p class="fcard-desc">여름 보양 횟감의 제왕</p>
+              <div class="fcard-meta"><span class="badge-season">제철 6–8월</span><span class="price">₩₩₩</span></div>
+            </div>
+          </article>
+          <article class="fcard">
+            <div class="fcard-ph ph-cool"><svg class="fishmark"><use href="#fish"/></svg><span class="badge-now">지금 제철</span><span class="save on">♥</span></div>
+            <div class="fcard-body">
+              <div class="fcard-top"><h4>농어</h4><span class="stars"><span class="st">★</span> 4.2 <em>(5)</em></span></div>
+              <p class="fcard-desc">여름 흰살회의 산뜻한 기준</p>
+              <div class="fcard-meta"><span class="badge-season">제철 6–8월</span><span class="price">₩₩</span></div>
+            </div>
+          </article>
+          <article class="fcard">
+            <div class="fcard-ph ph-silver"><svg class="fishmark"><use href="#fish"/></svg><span class="badge-now">지금 제철</span><span class="save">♡</span></div>
+            <div class="fcard-body">
+              <div class="fcard-top"><h4>병어</h4><span class="stars"><span class="st">★</span> 4.0 <em>(3)</em></span></div>
+              <p class="fcard-desc">고소하고 부드러운 여름 별미</p>
+              <div class="fcard-meta"><span class="badge-season">제철 5–8월</span><span class="price">₩₩</span></div>
+            </div>
+          </article>
+          <article class="fcard">
+            <div class="fcard-ph ph-silver"><svg class="fishmark"><use href="#fish"/></svg><span class="badge-now">지금 제철</span><span class="save">♡</span></div>
+            <div class="fcard-body">
+              <div class="fcard-top"><h4>갯장어</h4><span class="stars"><span class="st">★</span> 4.5 <em>(4)</em></span></div>
+              <p class="fcard-desc">여름 샤브·회로 즐기는 하모</p>
+              <div class="fcard-meta"><span class="badge-season">제철 6–8월</span><span class="price">₩₩₩</span></div>
+            </div>
+          </article>
+        </div>
+
+        <div class="p-sec">
+          <h3>에디터 추천</h3><span class="cnt">이번 주 2종</span>
+        </div>
+        <div class="cards c2">
+          <article class="fcard">
+            <div class="fcard-ph ph-deep" style="aspect-ratio:5/2"><svg class="fishmark" style="width:22%"><use href="#fish"/></svg><span class="badge-now">지금 제철</span><span class="save">♡</span></div>
+            <div class="fcard-body">
+              <div class="fcard-top"><h4>민어</h4><span class="stars"><span class="st">★</span> 4.8 <em>(6)</em></span></div>
+              <p class="fcard-desc">복날엔 삼계탕보다 민어 — 부레와 배꼽살까지 버릴 게 없어요</p>
+              <div class="fcard-meta"><span class="badge-season">제철 6–8월</span><span class="price">₩₩₩ <em>특별한 날</em></span></div>
+            </div>
+          </article>
+          <article class="fcard">
+            <div class="fcard-ph ph-cool" style="aspect-ratio:5/2"><svg class="fishmark" style="width:22%"><use href="#fish"/></svg><span class="save">♡</span></div>
+            <div class="fcard-body">
+              <div class="fcard-top"><h4>광어</h4><span class="stars"><span class="st">★</span> 4.3 <em>(12)</em></span></div>
+              <p class="fcard-desc">회가 처음이라면 여기서 시작 — 담백하고 쫄깃한 국민 흰살회</p>
+              <div class="fcard-meta"><span class="badge-season">제철 11–2월</span><span class="price">₩₩ <em>보통</em></span></div>
+            </div>
+          </article>
+        </div>
+
+        <div class="p-sec">
+          <h3>전체 도감</h3><span class="cnt">24종</span>
+        </div>
+        <div class="filter-row">
+          <span class="chip">계절 <span class="car">▾</span></span>
+          <span class="chip sel">맛: 담백 <span class="car">✕</span></span>
+          <span class="chip">가격대 <span class="car">▾</span></span>
+          <span class="gap"></span>
+          <span class="seg"><span class="on">인기순</span><span>이름순</span></span>
+        </div>
+        <div class="cards c4">
+          <article class="fcard">
+            <div class="fcard-ph ph-cool"><svg class="fishmark"><use href="#fish"/></svg><span class="save">♡</span></div>
+            <div class="fcard-body">
+              <div class="fcard-top"><h4>광어</h4><span class="stars"><span class="st">★</span> 4.3 <em>(12)</em></span></div>
+              <p class="fcard-desc">담백하고 쫄깃한 국민 흰살회</p>
+              <div class="fcard-meta"><span class="badge-season">제철 11–2월</span><span class="price">₩₩</span></div>
+            </div>
+          </article>
+          <article class="fcard">
+            <div class="fcard-ph ph-deep"><svg class="fishmark"><use href="#fish"/></svg><span class="save">♡</span></div>
+            <div class="fcard-body">
+              <div class="fcard-top"><h4>방어</h4><span class="stars"><span class="st">★</span> 4.7 <em>(21)</em></span></div>
+              <p class="fcard-desc">겨울 기름기의 최강자, 대방어</p>
+              <div class="fcard-meta"><span class="badge-season">제철 11–2월</span><span class="price">₩₩</span></div>
+            </div>
+          </article>
+          <article class="fcard">
+            <div class="fcard-ph ph-salmon"><svg class="fishmark"><use href="#fish"/></svg><span class="save on">♥</span></div>
+            <div class="fcard-body">
+              <div class="fcard-top"><h4>연어</h4><span class="stars"><span class="st">★</span> 4.4 <em>(15)</em></span></div>
+              <p class="fcard-desc">부드럽고 기름진, 호불호 없는 맛</p>
+              <div class="fcard-meta"><span class="badge-season">연중</span><span class="price">₩₩</span></div>
+            </div>
+          </article>
+          <article class="fcard">
+            <div class="fcard-ph ph-rose"><svg class="fishmark"><use href="#fish"/></svg><span class="save">♡</span></div>
+            <div class="fcard-body">
+              <div class="fcard-top"><h4>참돔</h4><span class="stars"><span class="st">★</span> 4.6 <em>(9)</em></span></div>
+              <p class="fcard-desc">은은한 단맛, 봄 도미의 품격</p>
+              <div class="fcard-meta"><span class="badge-season">제철 3–6월</span><span class="price">₩₩₩</span></div>
+            </div>
+          </article>
+        </div>
+      </div>
+
+    </div></div></div>
+    <ul class="points">
+      <li><b>검색은 히어로에 하나만.</b> 홈에서는 헤더 검색을 숨겨 시선 분산을 없애고, 서브 페이지에서만 헤더에 컴팩트 검색을 둡니다.</li>
+      <li><b>"7월, 지금이 제철"은 자동.</b> <code>GET /fish?month=7</code> — 접속한 달에 맞춰 제목과 목록이 바뀌는, 이 서비스의 첫인상입니다.</li>
+      <li><b>에디터 추천(featured)은 2장으로 절제.</b> 가로형 카드에 추천 이유 한 줄만. 섹션이 많아 보이지 않게 높이를 낮췄습니다.</li>
+      <li><b>필터는 계절·맛·가격대 3개 칩 + 정렬.</b> 선택된 필터는 물빛 채움 + ✕로 바로 해제. 필터 패널·사이드바는 두지 않습니다.</li>
+    </ul>
+
+    <!-- ---------- 상세 ---------- -->
+    <h3 class="sub">2. 생선 상세 — 갤러리 · 한눈 스펙 · 팁 · 후기</h3>
+    <div class="frame"><div class="frame-bar"><span class="dots"><i></i><i></i><i></i></span><span class="url">fishnote.kr/fish/6</span></div>
+    <div class="frame-scroll"><div class="screen">
+
+      <div class="p-head">
+        <span class="p-logo"><svg><use href="#fish"/></svg>FishNote</span>
+        <nav class="p-nav"><span class="on">도감</span><span>제철 캘린더</span><span>저장한 도감</span></nav>
+        <span class="p-head-search"><svg width="14" height="14"><use href="#mag"/></svg> 생선 이름 검색</span>
+      </div>
+
+      <div class="p-body">
+        <div class="d-top">
+          <div class="d-gallery">
+            <div class="main ph-deep"><svg><use href="#fish"/></svg></div>
+            <div class="d-thumbs"><i class="ph-deep cur"></i><i class="ph-cool"></i><i class="ph-silver"></i><i class="ph-deep"></i></div>
+          </div>
+          <div class="d-info">
+            <p class="crumb">← 도감으로</p>
+            <span class="badge-now">지금 제철</span>
+            <h2>민어</h2>
+            <p class="en">Brown croaker</p>
+            <p class="desc">여름 보양 횟감의 제왕. 복날엔 삼계탕보다 민어라는 말이 있을 정도예요.</p>
+            <span class="stars" style="font-size:14px"><span class="st">★</span> 4.8 <em>· 후기 6개</em></span>
+
+            <div class="spec">
+              <div><b>제철</b><span class="v">6–8월</span></div>
+              <div><b>맛</b><span class="v">부드러운 · 담백</span></div>
+              <div><b>가격대</b><span class="v">₩₩₩ <em style="font-weight:500;color:var(--p-muted)">특별한 날</em></span></div>
+            </div>
+            <div class="sbar" style="margin:22px 0 18px">
+              <i><span class="cell"></span><span class="m">1</span></i><i><span class="cell"></span><span class="m">2</span></i>
+              <i><span class="cell"></span><span class="m">3</span></i><i><span class="cell"></span><span class="m">4</span></i>
+              <i><span class="cell"></span><span class="m">5</span></i><i><span class="cell act"></span><span class="m">6</span></i>
+              <i><span class="cell act now"></span><span class="m">7</span></i><i><span class="cell act"></span><span class="m">8</span></i>
+              <i><span class="cell"></span><span class="m">9</span></i><i><span class="cell"></span><span class="m">10</span></i>
+              <i><span class="cell"></span><span class="m">11</span></i><i><span class="cell"></span><span class="m">12</span></i>
+            </div>
+            <div class="d-actions">
+              <span class="btn">♡ 저장하기</span>
+              <span class="btn ghost">후기 쓰기</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-sec"><h3>어떤 맛인가요?</h3></div>
+        <p style="margin:0;max-width:640px">살이 부드럽고 담백하면서 씹을수록 은은한 단맛이 올라옵니다. 흰살생선 중에서도 결이 곱고 촉촉해서, 기름진 회가 부담스러운 분께도 잘 맞아요.</p>
+
+        <div class="p-sec"><h3>이렇게 즐겨요</h3></div>
+        <ul class="tips">
+          <li>배꼽살과 부레는 소금기름장에 — 민어회에서만 맛볼 수 있는 별미예요.</li>
+          <li>살짝 두껍게 썰어야 부드러운 식감이 살아나요. 초장보다 간장+고추냉이 추천.</li>
+        </ul>
+
+        <div class="p-sec"><h3>비슷한 생선</h3></div>
+        <div class="cards c3">
+          <article class="fcard">
+            <div class="fcard-ph ph-cool"><svg class="fishmark"><use href="#fish"/></svg><span class="badge-now">지금 제철</span></div>
+            <div class="fcard-body"><div class="fcard-top"><h4>농어</h4><span class="stars"><span class="st">★</span> 4.2</span></div>
+            <div class="fcard-meta"><span class="badge-season">제철 6–8월</span><span class="price">₩₩</span></div></div>
+          </article>
+          <article class="fcard">
+            <div class="fcard-ph ph-rose"><svg class="fishmark"><use href="#fish"/></svg></div>
+            <div class="fcard-body"><div class="fcard-top"><h4>참돔</h4><span class="stars"><span class="st">★</span> 4.6</span></div>
+            <div class="fcard-meta"><span class="badge-season">제철 3–6월</span><span class="price">₩₩₩</span></div></div>
+          </article>
+          <article class="fcard">
+            <div class="fcard-ph ph-cool"><svg class="fishmark"><use href="#fish"/></svg></div>
+            <div class="fcard-body"><div class="fcard-top"><h4>광어</h4><span class="stars"><span class="st">★</span> 4.3</span></div>
+            <div class="fcard-meta"><span class="badge-season">제철 11–2월</span><span class="price">₩₩</span></div></div>
+          </article>
+        </div>
+
+        <div class="p-sec"><h3>후기</h3><span class="cnt">6개</span></div>
+        <div class="rev-grid">
+          <div class="rev-summary">
+            <div class="big">4.8 <small>/ 5</small></div>
+            <div class="st-row">★★★★★</div>
+            <div class="cnt">후기 6개</div>
+            <div class="dist">
+              <div class="dist-row"><span>5점</span><span class="track"><span class="fill" style="width:83%"></span></span><span>5</span></div>
+              <div class="dist-row"><span>4점</span><span class="track"><span class="fill" style="width:17%"></span></span><span>1</span></div>
+              <div class="dist-row"><span>3점</span><span class="track"><span class="fill" style="width:0%"></span></span><span>0</span></div>
+              <div class="dist-row"><span>2점</span><span class="track"><span class="fill" style="width:0%"></span></span><span>0</span></div>
+              <div class="dist-row"><span>1점</span><span class="track"><span class="fill" style="width:0%"></span></span><span>0</span></div>
+            </div>
+          </div>
+          <div class="rev-list">
+            <div class="rev-sort"><span class="chip sel">최신순</span><span class="chip">도움순</span></div>
+            <div class="rev-card">
+              <div class="rev-head">
+                <span class="avatar">여</span>
+                <div><b>여름보양</b> <span class="stars" style="font-size:12px"><span class="st">★</span> 5.0</span><div class="meta">7월 2일</div></div>
+                <span class="del">삭제</span>
+              </div>
+              <p>복날에 먹었는데 부레가 진짜 별미네요. 소금기름장 조합은 꼭 해보세요.</p>
+              <span class="helpful">👍 도움돼요 4</span>
+            </div>
+            <div class="rev-card">
+              <div class="rev-head">
+                <span class="avatar">회</span>
+                <div><b>회린이</b> <span class="stars" style="font-size:12px"><span class="st">★</span> 4.0</span><div class="meta">6월 28일</div></div>
+                <span class="del">삭제</span>
+              </div>
+              <p>광어보다 부드러워서 놀랐어요. 가격이 좀 있지만 여름에 한 번은 먹을 만해요.</p>
+              <span class="helpful done">👍 도움돼요 2 · 눌렀어요</span>
+            </div>
+
+            <div class="rev-form">
+              <h5>후기 남기기</h5>
+              <div class="f-row">
+                <div class="f-field"><label>닉네임</label><span class="f-input">예: 회러버</span></div>
+                <div class="f-field"><label>별점 <em>(선택)</em></label><span class="f-stars">★★★★<span class="off">★</span></span></div>
+              </div>
+              <div class="f-field" style="margin-bottom:12px"><label>후기</label><span class="f-input area">맛·식감·먹은 곳 분위기, 자유롭게 적어주세요</span></div>
+              <div class="f-row">
+                <div class="f-field"><label>비밀번호</label><span class="f-input">••••</span><p class="f-help">후기를 지울 때만 써요 (4자 이상)</p></div>
+                <div class="f-field" style="align-self:end"><div class="f-submit"><span class="btn">등록하기</span></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div></div></div>
+    <ul class="points">
+      <li><b>상단 절반에서 궁금증 해결.</b> 사진·이름·지금 제철·한눈 스펙 3칸·시즌 바까지 스크롤 없이. 아래는 더 알고 싶은 사람용입니다.</li>
+      <li><b>저장하기가 유일한 주요 버튼.</b> 로그인이 없으니 "저장 = 하트 하나"로 끝. 후기 쓰기는 고스트 버튼으로 한 단계 낮췄습니다.</li>
+      <li><b>후기 폼은 항상 펼쳐진 4칸.</b> 익명+비밀번호라는 낯선 구조는 "후기를 지울 때만 써요" 한 줄로 설명합니다. 사진 URL 입력은 v1에서 과감히 숨김(입문자에게 URL 입력은 장벽).</li>
+      <li><b>도움돼요는 누르면 상태가 남게.</b> localStorage 1회 제한과 짝을 이뤄 "눌렀어요"로 바뀝니다.</li>
+    </ul>
+
+    <!-- ---------- 캘린더 ---------- -->
+    <h3 class="sub">3. 제철 캘린더 — 월 하나 고르면 끝</h3>
+    <div class="frame"><div class="frame-bar"><span class="dots"><i></i><i></i><i></i></span><span class="url">fishnote.kr/calendar</span></div>
+    <div class="frame-scroll"><div class="screen">
+
+      <div class="p-head">
+        <span class="p-logo"><svg><use href="#fish"/></svg>FishNote</span>
+        <nav class="p-nav"><span>도감</span><span class="on">제철 캘린더</span><span>저장한 도감</span></nav>
+        <span class="p-head-search"><svg width="14" height="14"><use href="#mag"/></svg> 생선 이름 검색</span>
+      </div>
+
+      <div class="p-body">
+        <div class="p-sec" style="margin-top:30px"><h3>월별 제철 생선</h3><span class="cnt">달을 고르면 그때 가장 맛있는 생선을 보여드려요</span></div>
+        <div class="months">
+          <div class="month"><b>1월</b><span>5종</span></div>
+          <div class="month"><b>2월</b><span>5종</span></div>
+          <div class="month"><b>3월</b><span>4종</span></div>
+          <div class="month"><b>4월</b><span>4종</span></div>
+          <div class="month"><b>5월</b><span>5종</span></div>
+          <div class="month"><b>6월</b><span>6종</span></div>
+          <div class="month sel"><b>7월</b><span>지금 · 4종</span></div>
+          <div class="month"><b>8월</b><span>6종</span></div>
+          <div class="month"><b>9월</b><span>3종</span></div>
+          <div class="month"><b>10월</b><span>4종</span></div>
+          <div class="month"><b>11월</b><span>7종</span></div>
+          <div class="month"><b>12월</b><span>7종</span></div>
+        </div>
+        <div class="cards c4">
+          <article class="fcard">
+            <div class="fcard-ph ph-deep"><svg class="fishmark"><use href="#fish"/></svg><span class="badge-now">지금 제철</span><span class="save">♡</span></div>
+            <div class="fcard-body"><div class="fcard-top"><h4>민어</h4><span class="stars"><span class="st">★</span> 4.8</span></div>
+            <p class="fcard-desc">여름 보양 횟감의 제왕</p>
+            <div class="fcard-meta"><span class="badge-season">제철 6–8월</span><span class="price">₩₩₩</span></div></div>
+          </article>
+          <article class="fcard">
+            <div class="fcard-ph ph-cool"><svg class="fishmark"><use href="#fish"/></svg><span class="badge-now">지금 제철</span><span class="save on">♥</span></div>
+            <div class="fcard-body"><div class="fcard-top"><h4>농어</h4><span class="stars"><span class="st">★</span> 4.2</span></div>
+            <p class="fcard-desc">여름 흰살회의 산뜻한 기준</p>
+            <div class="fcard-meta"><span class="badge-season">제철 6–8월</span><span class="price">₩₩</span></div></div>
+          </article>
+          <article class="fcard">
+            <div class="fcard-ph ph-silver"><svg class="fishmark"><use href="#fish"/></svg><span class="badge-now">지금 제철</span><span class="save">♡</span></div>
+            <div class="fcard-body"><div class="fcard-top"><h4>병어</h4><span class="stars"><span class="st">★</span> 4.0</span></div>
+            <p class="fcard-desc">고소하고 부드러운 여름 별미</p>
+            <div class="fcard-meta"><span class="badge-season">제철 5–8월</span><span class="price">₩₩</span></div></div>
+          </article>
+          <article class="fcard">
+            <div class="fcard-ph ph-silver"><svg class="fishmark"><use href="#fish"/></svg><span class="badge-now">지금 제철</span><span class="save">♡</span></div>
+            <div class="fcard-body"><div class="fcard-top"><h4>갯장어</h4><span class="stars"><span class="st">★</span> 4.5</span></div>
+            <p class="fcard-desc">여름 샤브·회로 즐기는 하모</p>
+            <div class="fcard-meta"><span class="badge-season">제철 6–8월</span><span class="price">₩₩₩</span></div></div>
+          </article>
+        </div>
+      </div>
+
+    </div></div></div>
+    <ul class="points">
+      <li><b>기본 선택은 오늘이 속한 달.</b> 들어오자마자 "이번 달 뭐가 맛있지"가 해결됩니다. 월 버튼엔 종 수를 함께 표기.</li>
+      <li><b>세로 사이드바 대신 가로 12칸.</b> 기존 <code>MonthSidebar</code> 자리 — 모바일에서는 이 12칸이 가로 스크롤 칩으로 변합니다.</li>
+      <li><b>데이터는 <code>GET /fish?month=N</code> 하나면 충분.</b> 화면 전용 API를 늘리지 않습니다.</li>
+    </ul>
+
+    <!-- ---------- 모바일 ---------- -->
+    <h3 class="sub">4. 모바일 — 같은 문법, 한 열로</h3>
+    <div class="frame frame-mobile"><div class="frame-bar"><span class="dots"><i></i><i></i><i></i></span><span class="url">fishnote.kr</span></div>
+    <div class="screen">
+
+      <div class="m-head">
+        <span class="p-logo"><svg><use href="#fish"/></svg>FishNote</span>
+        <span class="ic"><svg width="17" height="17"><use href="#mag"/></svg><span style="font-size:15px;line-height:1">☰</span></span>
+      </div>
+      <div class="m-body">
+        <div class="m-hero">
+          <h1>오늘 이 회,<br>무슨 생선일까요?</h1>
+          <p>이름·제철·맛·가격대까지 3초면 확인</p>
+          <div class="m-search"><svg width="15" height="15"><use href="#mag"/></svg> 생선 이름으로 찾기</div>
+        </div>
+        <div class="p-sec" style="margin:24px 0 12px"><h3 style="font-size:17px">7월, 지금이 제철</h3><span class="more">캘린더 →</span></div>
+        <div class="m-row">
+          <article class="fcard">
+            <div class="fcard-ph ph-deep"><svg class="fishmark"><use href="#fish"/></svg><span class="badge-now">지금 제철</span></div>
+            <div class="fcard-body"><div class="fcard-top"><h4 style="font-size:15px">민어</h4><span class="stars"><span class="st">★</span> 4.8</span></div>
+            <div class="fcard-meta"><span class="price">₩₩₩</span></div></div>
+          </article>
+          <article class="fcard">
+            <div class="fcard-ph ph-cool"><svg class="fishmark"><use href="#fish"/></svg><span class="badge-now">지금 제철</span></div>
+            <div class="fcard-body"><div class="fcard-top"><h4 style="font-size:15px">농어</h4><span class="stars"><span class="st">★</span> 4.2</span></div>
+            <div class="fcard-meta"><span class="price">₩₩</span></div></div>
+          </article>
+          <article class="fcard">
+            <div class="fcard-ph ph-silver"><svg class="fishmark"><use href="#fish"/></svg><span class="badge-now">지금 제철</span></div>
+            <div class="fcard-body"><div class="fcard-top"><h4 style="font-size:15px">병어</h4><span class="stars"><span class="st">★</span> 4.0</span></div>
+            <div class="fcard-meta"><span class="price">₩₩</span></div></div>
+          </article>
+        </div>
+        <div class="p-sec" style="margin:24px 0 12px"><h3 style="font-size:17px">전체 도감</h3><span class="cnt">24종</span></div>
+        <div class="filter-row" style="margin-bottom:12px">
+          <span class="chip">계절 <span class="car">▾</span></span><span class="chip">맛 <span class="car">▾</span></span><span class="chip">가격대 <span class="car">▾</span></span>
+        </div>
+        <div class="m-cards">
+          <article class="fcard">
+            <div class="fcard-ph ph-deep"><svg class="fishmark"><use href="#fish"/></svg><span class="save">♡</span></div>
+            <div class="fcard-body"><div class="fcard-top"><h4>방어</h4><span class="stars"><span class="st">★</span> 4.7 <em>(21)</em></span></div>
+            <p class="fcard-desc">겨울 기름기의 최강자, 대방어</p>
+            <div class="fcard-meta"><span class="badge-season">제철 11–2월</span><span class="price">₩₩</span></div></div>
+          </article>
+        </div>
+      </div>
+
+    </div></div>
+    <ul class="points">
+      <li><b>모바일이 1순위.</b> 횟집·수산시장에서 서서 검색하는 상황이 핵심 씬 — 검색창을 접히지 않는 위치에, 터치 타깃 44px 이상.</li>
+      <li><b>하단 탭바는 쓰지 않음.</b> 메뉴가 3개뿐인 콘텐츠 웹이라 상단 헤더+메뉴로 충분합니다. 앱처럼 무거워 보이지 않게.</li>
+      <li><b>제철 카드는 가로 스와이프, 전체 도감은 1열 큰 카드.</b> 사진이 정보의 절반이므로 모바일에서 사진을 줄이지 않습니다.</li>
+    </ul>
+  </section>
+
+  <!-- ================= ④ UX 디테일 ================= -->
+  <section id="ux">
+    <p class="sec-label">④ UX 디테일</p>
+    <h2>말투와 빈 화면까지가 디자인</h2>
+    <p class="sec-desc">입문자 대상 서비스는 마이크로카피가 UI의 절반입니다. 시스템 말투가 아니라 옆에서 알려주는 말투로 통일합니다.</p>
+
+    <div class="tbl-scroll">
+      <table>
+        <tr><th>상황</th><th>문구 (제안)</th><th>이유</th></tr>
+        <tr><td>후기 비밀번호 헬퍼</td><td>"후기를 지울 때만 써요 (4자 이상)"</td><td>익명+비밀번호 구조를 모르는 사용자의 불안 해소</td></tr>
+        <tr><td>별점 라벨</td><td>"별점 (선택)"</td><td>API상 선택값 — 강요하지 않아야 후기 작성률이 올라감</td></tr>
+        <tr><td>검색 결과 없음</td><td>"'도다리'는 아직 도감에 없어요" + [전체 도감 둘러보기]</td><td>막다른 길을 만들지 않고 항상 다음 행동 제공</td></tr>
+        <tr><td>저장한 도감 빈 상태</td><td>"아직 저장한 생선이 없어요. 마음에 드는 카드의 ♡를 눌러 모아보세요"</td><td>기능 사용법을 빈 화면에서 가르침</td></tr>
+        <tr><td>후기 삭제 확인</td><td>"이 후기를 지울까요? 작성할 때 쓴 비밀번호를 입력해 주세요"</td><td>DELETE는 비밀번호 재확인 — 모달 하나로 처리</td></tr>
+        <tr><td>서버 오류</td><td>"잠시 연결이 원활하지 않아요" + [다시 시도]</td><td>기술 용어(500, 네트워크) 노출 금지</td></tr>
+      </table>
+    </div>
+
+    <h3 class="sub">로딩 · 빈 상태</h3>
+    <div class="states">
+      <div class="state-box">
+        <h4>로딩 — 스켈레톤 카드 (스피너 금지)</h4>
+        <div class="skel"><i class="img"></i><i class="l1"></i><i class="l2"></i></div>
+      </div>
+      <div class="state-box">
+        <h4>필터 결과 없음 — 항상 출구 제공</h4>
+        <div class="empty">
+          <div class="glyph">🐟</div>
+          <b>이 조건에 맞는 생선이 아직 없어요</b>
+          <p>필터를 하나 줄여보시면 어떨까요?</p>
+          <span class="fake-btn">필터 초기화</span>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub">접근성 기준선</h3>
+    <ul class="points">
+      <li>터치 타깃 최소 44×44px (하트 버튼, 월 선택, 도움돼요 포함)</li>
+      <li>본문 대비 4.5:1 이상 — 물안개 회색(#5F7078)은 흰 배경에서 4.9:1로 통과</li>
+      <li>별점은 아이콘 단독 금지, 항상 "★ 4.8 (후기 6개)" 텍스트 병기 — 스크린리더 대응</li>
+      <li>사진 alt는 "{생선이름} 회 사진"으로 자동 생성, 키보드 포커스 링 유지</li>
+      <li>모든 전환·호버 애니메이션 150~200ms 이내, <code>prefers-reduced-motion</code> 존중</li>
+    </ul>
+  </section>
+
+  <!-- ================= ⑤ 구현 노트 ================= -->
+  <section id="impl">
+    <p class="sec-label">⑤ 구현 노트</p>
+    <h2>기존 구조에 그대로 얹기</h2>
+    <p class="sec-desc">API·라우트·컴포넌트 구조는 손대지 않습니다. 아래는 기존 FE 파일과 이 디자인의 대응표입니다.</p>
+
+    <div class="tbl-scroll">
+      <table>
+        <tr><th>기존 파일</th><th>이 디자인에서</th></tr>
+        <tr><td><code>AppLayout.tsx</code></td><td>헤더 3메뉴(도감·제철 캘린더·저장한 도감). 홈에서는 헤더 검색 숨기고 히어로 검색만</td></tr>
+        <tr><td><code>FishCard.tsx</code></td><td>사진 4:3 고정 크롭 · "지금 제철" 뱃지는 <code>seasonMonths.includes(현재 월)</code> 클라 계산 · 하트 토글</td></tr>
+        <tr><td><code>SeasonBar.tsx</code></td><td>12칸 바 + "지금" 마커 (상세 전용, 카드에서는 "제철 6–8월" 텍스트 뱃지)</td></tr>
+        <tr><td><code>MonthSidebar.tsx</code></td><td>가로 12칸 월 셀렉터로 교체 제안 — 모바일에서 가로 스크롤 칩</td></tr>
+        <tr><td><code>FilterChips.tsx</code></td><td>계절·맛·가격대 3개 드롭다운 칩 + 선택 시 물빛 채움/✕ 해제 + 초기화</td></tr>
+        <tr><td><code>SearchBar.tsx</code></td><td>홈 히어로용(대) / 서브페이지 헤더용(소) 두 사이즈</td></tr>
+        <tr><td><code>ReviewForm.tsx</code></td><td>4개 필드 상시 노출, 비밀번호 헬퍼 문구, 사진 URL 입력은 v1에서 제외 제안</td></tr>
+        <tr><td><code>ReviewList.tsx</code></td><td>요약(평균+분포) 좌측 고정 + 최신순/도움순 칩 + 도움돼요 "눌렀어요" 상태</td></tr>
+      </table>
+    </div>
+
+    <h3 class="sub">Tailwind 토큰</h3>
+    <pre>// tailwind.config.js — theme.extend
+colors: {
+  sea:   { DEFAULT: '#0F6E84', soft: '#E3F0F3' },  // 물빛 (포인트)
+  ink:   { DEFAULT: '#1A2B33', mute: '#5F7078' },  // 텍스트
+  mist:  '#F6F8F9',                                 // 페이지 배경
+  line:  '#E3EAED',                                 // 경계선
+  star:  '#E0A030',                                 // 별점 전용
+},
+borderRadius: { card: '14px' },
+fontFamily: { sans: ['Pretendard Variable', 'Pretendard', ...] }</pre>
+
+    <ul class="points">
+      <li><b>API 추가 요청 없음.</b> 홈 = <code>?month=N</code> + <code>?featured=true</code> + 기본 목록, 캘린더 = <code>?month=N</code>, 후기 = <code>sort=latest|helpful</code> — 전부 명세 v1 확장 범위 안입니다.</li>
+      <li><b>다크 모드는 v1 범위 밖.</b> 사진 중심 서비스라 라이트 단일 테마로 시작하고, 반응 좋으면 v2에서 검토.</li>
+      <li><b>적용 순서 제안:</b> ① 토큰·타이포 → ② FishCard·뱃지·칩 → ③ 홈 → ④ 상세 → ⑤ 캘린더·저장 → ⑥ 상태·카피.</li>
+    </ul>
+  </section>
+
+  <!-- ================= ⑥ 질문 ================= -->
+  <div class="qbox" id="questions">
+    <p class="sec-label">⑥ 진행 전 확인하고 싶은 것</p>
+    <h2>세 가지만 답해주세요</h2>
+    <ol>
+      <li><b>서비스 이름</b> — 폴더는 FishBook, 문서·코드는 FishNote입니다. 로고 워드마크를 확정해야 해서, 어느 쪽으로 갈까요?</li>
+      <li><b>생선 사진 수급 계획</b> — 직접 촬영인지, 공개 자료인지에 따라 사진 톤 보정 가이드(4:3 크롭 + 밝기 통일)가 달라집니다. 사진이 없는 생선은 위 목업처럼 일러스트 플레이스홀더로 대체하는 방식을 제안합니다.</li>
+      <li><b>사진 URL 후기 첨부</b> — API에는 있지만 입문자에게 URL 입력은 장벽이라 v1 화면에서 뺐습니다. 유지할까요, 뺄까요? (v2 파일 업로드 때 다시 넣는 것을 추천)</li>
+    </ol>
+  </div>
+
+</div>

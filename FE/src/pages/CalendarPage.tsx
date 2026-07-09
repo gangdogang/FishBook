@@ -30,7 +30,7 @@ export default function CalendarPage() {
   return (
     <main className="mx-auto max-w-[1200px] px-4 pb-20 pt-9 sm:px-7">
       <h1 className="mb-2 text-[30px] font-bold tracking-[-0.03em] text-ink">제철 캘린더</h1>
-      <p className="mb-[26px] text-[15.5px] leading-[1.5] text-muted">달을 선택하면 그 달에 제철인 회를 모아 보여드려요.</p>
+      <p className="mb-[26px] text-[15.5px] leading-[1.5] text-ink-mute">달을 선택하면 그 달에 제철인 회를 모아 보여드려요.</p>
 
       <div className="mb-8 grid grid-cols-2 gap-[9px] sm:grid-cols-4 lg:grid-cols-6">
         {months.map((month) => {
@@ -44,8 +44,8 @@ export default function CalendarPage() {
               onClick={() => setSelectedMonth(month)}
               className={
                 active
-                  ? 'inline-flex items-center justify-center gap-[5px] rounded-[11px] border border-transparent bg-brand-500 px-2.5 py-[11px] text-sm font-bold text-white transition'
-                  : 'inline-flex items-center justify-center gap-[5px] rounded-[11px] border border-line bg-white px-2.5 py-[11px] text-sm font-medium text-ink transition hover:border-brand-500 hover:text-brand-700'
+                  ? 'inline-flex items-center justify-center gap-[5px] rounded-[11px] border border-transparent bg-sea px-2.5 py-[11px] text-sm font-bold text-white transition'
+                  : 'inline-flex items-center justify-center gap-[5px] rounded-[11px] border border-line bg-white px-2.5 py-[11px] text-sm font-medium text-ink transition hover:border-sea hover:text-sea'
               }
               aria-pressed={active}
             >
@@ -55,7 +55,7 @@ export default function CalendarPage() {
                 className={
                   active
                     ? 'inline-flex h-[17px] min-w-[17px] items-center justify-center rounded-full bg-white/25 px-1 text-[11px] font-semibold text-white'
-                    : 'inline-flex h-[17px] min-w-[17px] items-center justify-center rounded-full bg-[#F2F4F5] px-1 text-[11px] font-semibold text-faint'
+                    : 'inline-flex h-[17px] min-w-[17px] items-center justify-center rounded-full bg-chipbg px-1 text-[11px] font-semibold text-ink-mute/70'
                 }
               >
                 {count}
@@ -68,9 +68,9 @@ export default function CalendarPage() {
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <h2 className="m-0 text-[22px] font-bold tracking-[-0.02em] text-ink">
           {selectedMonth}월 제철{' '}
-          <span className="text-[17px] font-medium text-faint">{isMonthLoading || isMonthError ? '-' : monthFishes.length}종</span>
+          <span className="text-[17px] font-medium text-ink-mute/70">{isMonthLoading || isMonthError ? '-' : monthFishes.length}종</span>
         </h2>
-        <span className="rounded-full bg-brand-50 px-3 py-[5px] text-[13px] font-semibold text-brand-700">
+        <span className="rounded-full bg-sea-soft px-3 py-[5px] text-[13px] font-semibold text-sea">
           {seasonOfMonth(selectedMonth)} 제철
         </span>
       </div>
@@ -97,13 +97,13 @@ function seasonOfMonth(month: number) {
 }
 
 function StateText({ text }: { text: string }) {
-  return <div className="rounded-card border border-line bg-white p-8 text-center text-muted">{text}</div>;
+  return <div className="rounded-card border border-line bg-white p-8 text-center text-ink-mute">{text}</div>;
 }
 
 function EmptyState() {
   return (
-    <div className="rounded-card border border-dashed border-[#E2E7E9] px-5 py-[60px] text-center">
-      <p className="m-0 text-[14.5px] text-muted">이 달에 등록된 제철 회가 아직 없어요.</p>
+    <div className="rounded-card border border-dashed border-line px-5 py-[60px] text-center">
+      <p className="m-0 text-[14.5px] text-ink-mute">이 달에 등록된 제철 회가 아직 없어요.</p>
     </div>
   );
 }

@@ -19,7 +19,7 @@ export default function ReviewList({ reviews, onDelete, onHelpful, workingReview
   const helpfulSet = useMemo(() => new Set(helpfulReviewIds), [helpfulReviewIds]);
 
   if (reviews.length === 0) {
-    return <div className="rounded-[14px] border border-dashed border-line bg-white px-5 py-8 text-center text-sm text-muted">아직 후기가 없습니다.</div>;
+    return <div className="rounded-[14px] border border-dashed border-line bg-white px-5 py-8 text-center text-sm text-ink-mute">아직 후기가 없습니다.</div>;
   }
 
   async function handleHelpful(reviewId: number) {
@@ -61,10 +61,10 @@ export default function ReviewList({ reviews, onDelete, onHelpful, workingReview
     <div className="flex flex-col gap-3.5">
       {message ? <p className="m-0 rounded-[10px] bg-red-50 px-3 py-2 text-[13.5px] font-medium text-red-700">{message}</p> : null}
       {reviews.map((review) => (
-        <article key={review.id} className="rounded-[14px] border border-line px-5 py-[18px]">
+        <article key={review.id} className="rounded-[14px] border border-line bg-white px-5 py-[18px]">
           <div className="mb-[9px] flex items-center justify-between gap-4">
             <div className="flex min-w-0 items-center gap-2.5">
-              <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-brand-50 text-[13px] font-bold text-brand-700">
+              <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-chipbg text-[13px] font-bold text-ink">
                 {getInitial(review.nickname)}
               </span>
               <div className="min-w-0">
@@ -72,11 +72,13 @@ export default function ReviewList({ reviews, onDelete, onHelpful, workingReview
                 <RatingStars rating={review.rating ?? 0} className="text-[12.5px]" />
               </div>
             </div>
-            <time className="flex-none text-[12.5px] text-faint">{formatDate(review.createdAt)}</time>
+            <time className="flex-none text-[12.5px] text-ink-mute/70">{formatDate(review.createdAt)}</time>
           </div>
 
           <p className="m-0 mb-3 whitespace-pre-line break-words text-[14.5px] leading-[1.65] text-ink">{review.content}</p>
-          {review.imageUrl ? <img src={review.imageUrl} alt="" className="mb-3 max-h-64 rounded-[10px] object-cover" /> : null}
+          {review.imageUrl ? (
+            <img src={review.imageUrl} alt="" className="mb-3 h-56 w-full max-w-[420px] rounded-[12px] border border-line object-cover sm:h-64" />
+          ) : null}
 
           <div className="flex items-center justify-between gap-3">
             <button
@@ -86,8 +88,8 @@ export default function ReviewList({ reviews, onDelete, onHelpful, workingReview
               className={[
                 'inline-flex items-center gap-1.5 rounded-full border px-[13px] py-1.5 text-[12.5px] font-semibold transition',
                 helpfulSet.has(review.id)
-                  ? 'border-brand-100 bg-brand-50 text-brand-700'
-                  : 'border-line bg-white text-muted hover:border-brand-600 hover:text-brand-700',
+                  ? 'border-sea-soft bg-sea-soft text-sea'
+                  : 'border-line bg-white text-ink-mute hover:border-sea hover:text-sea',
                 workingReviewId === review.id ? 'cursor-wait opacity-60' : '',
               ].join(' ')}
             >
@@ -100,20 +102,20 @@ export default function ReviewList({ reviews, onDelete, onHelpful, workingReview
               aria-label="후기 삭제"
               disabled={workingReviewId === review.id}
               onClick={() => openDeleteForm(review.id)}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full text-faint transition hover:bg-red-50 hover:text-red-600 disabled:cursor-wait disabled:opacity-50"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full text-ink-mute/70 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-wait disabled:opacity-50"
             >
               <Trash2 className="h-4 w-4" aria-hidden />
             </button>
           </div>
 
           {deletingReviewId === review.id ? (
-            <div className="mt-3 flex flex-col gap-2 rounded-[10px] bg-[#FBFCFC] p-3 sm:flex-row sm:items-center">
+            <div className="mt-3 flex flex-col gap-2 rounded-[10px] bg-mist p-3 sm:flex-row sm:items-center">
               <input
                 type="password"
                 value={deletePassword}
                 onChange={(event) => setDeletePassword(event.target.value)}
                 placeholder="삭제용 비밀번호"
-                className="min-w-0 flex-1 rounded-[10px] border border-line bg-white px-3 py-2 text-[13.5px] text-ink outline-none focus:border-brand-600"
+                className="min-w-0 flex-1 rounded-[10px] border border-line bg-white px-3 py-2 text-[13.5px] text-ink outline-none focus:border-sea"
               />
               <div className="flex gap-2">
                 <button
@@ -123,7 +125,7 @@ export default function ReviewList({ reviews, onDelete, onHelpful, workingReview
                     setDeletePassword('');
                     setMessage(undefined);
                   }}
-                  className="flex-1 rounded-[10px] border border-line bg-white px-3 py-2 text-[13.5px] font-semibold text-muted sm:flex-none"
+                  className="flex-1 rounded-[10px] border border-line bg-white px-3 py-2 text-[13.5px] font-semibold text-ink-mute sm:flex-none"
                 >
                   취소
                 </button>
@@ -149,8 +151,8 @@ function RatingStars({ rating, className = '' }: { rating: number; className?: s
 
   return (
     <span className={className} aria-label={`${full}점`}>
-      <span className="text-accent">{'★'.repeat(full)}</span>
-      <span className="text-[#E0E3E6]">{'★'.repeat(5 - full)}</span>
+      <span className="text-star">{'★'.repeat(full)}</span>
+      <span className="text-line">{'★'.repeat(5 - full)}</span>
     </span>
   );
 }

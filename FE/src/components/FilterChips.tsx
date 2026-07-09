@@ -52,7 +52,7 @@ function chipClass(active: boolean) {
   return [
     'whitespace-nowrap rounded-full border px-3.5 py-[7px] text-[13px] transition duration-150',
     active
-      ? 'border-transparent bg-brand-500 font-semibold text-white'
-      : 'border-line bg-white font-medium text-ink hover:border-brand-500 hover:text-brand-700',
+      ? 'border-transparent bg-sea font-semibold text-white'
+      : 'border-line bg-white font-medium text-ink hover:border-sea hover:text-sea',
   ].join(' ');
 }

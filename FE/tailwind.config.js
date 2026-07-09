@@ -4,28 +4,18 @@ export default {
   theme: {
     extend: {
       colors: {
-        brand: {
-          50: '#E6F4F2',
-          100: '#E6F4F2',
-          500: '#0F9488',
-          600: '#0F9488',
-          700: '#0B7C72'
-        },
-        ink: '#1A1D1F',
-        muted: '#6B7280',
-        faint: '#9AA0A6',
-        line: '#E8EBED',
-        accent: '#F2A93B'
-      },
-      fontFamily: {
-        sans: ['Pretendard', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'sans-serif']
+        sea: { DEFAULT: '#0F6E84', soft: '#E3F0F3' },
+        ink: { DEFAULT: '#1A2B33', mute: '#5F7078' },
+        mist: '#F6F8F9',
+        line: '#E3EAED',
+        chipbg: '#EEF3F5',
+        star: '#E0A030'
       },
       borderRadius: {
-        lg: '16px',
-        card: '16px'
+        card: '14px'
       },
-      boxShadow: {
-        soft: '0 10px 28px rgba(15, 148, 136, 0.12)'
+      fontFamily: {
+        sans: ['Pretendard Variable', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', 'sans-serif']
       }
     }
   },

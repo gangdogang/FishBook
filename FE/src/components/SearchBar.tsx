@@ -31,7 +31,7 @@ export default function SearchBar({
       className={[
         isCompact
           ? 'flex h-9 w-full min-w-0 items-center gap-2 rounded-full border border-line bg-mist py-0 pl-3 pr-1.5'
-          : 'flex h-10 w-full min-w-0 items-center gap-2 rounded-[10px] border border-line bg-chipbg py-0 pl-[13px] pr-[5px]',
+          : 'mx-auto flex min-h-[58px] w-full max-w-[520px] min-w-0 items-center gap-3 rounded-card border-[1.5px] border-line bg-white py-0 pl-[18px] pr-2',
         className,
       ].join(' ')}
     >
@@ -40,14 +40,14 @@ export default function SearchBar({
         value={value}
         onChange={(event) => setValue(event.target.value)}
         placeholder={placeholder}
-        className={isCompact ? 'min-w-0 flex-1 bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-mute/70' : 'min-w-0 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-ink-mute/70'}
+        className={isCompact ? 'min-w-0 flex-1 bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-mute/70' : 'min-w-0 flex-1 bg-transparent text-[15px] text-ink outline-none placeholder:text-ink-mute/70'}
       />
       <button
-        className={isCompact ? 'flex h-7 w-7 flex-none items-center justify-center rounded-full bg-sea text-white transition hover:bg-sea' : 'flex h-[30px] w-[30px] flex-none items-center justify-center rounded-[7px] bg-sea text-white transition hover:bg-sea'}
+        className={isCompact ? 'flex h-7 w-7 flex-none items-center justify-center rounded-full bg-sea text-white transition hover:bg-sea' : 'inline-flex h-11 flex-none items-center justify-center rounded-[10px] bg-sea px-[18px] text-sm font-bold text-white transition hover:bg-sea'}
         type="submit"
         aria-label="검색"
       >
-        <Search className={isCompact ? 'h-3.5 w-3.5' : 'h-[15px] w-[15px]'} aria-hidden />
+        {isCompact ? <Search className="h-3.5 w-3.5" aria-hidden /> : '검색'}
       </button>
     </form>
   );

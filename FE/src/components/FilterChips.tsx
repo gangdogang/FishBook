@@ -14,11 +14,15 @@ interface FilterChipsProps {
   taste?: string;
   onSeasonChange: (value?: Season) => void;
   onTasteChange: (value?: string) => void;
+  onReset?: () => void;
+  className?: string;
 }
 
-export default function FilterChips({ season, taste, onSeasonChange, onTasteChange }: FilterChipsProps) {
+export default function FilterChips({ season, taste, onSeasonChange, onTasteChange, onReset, className = '' }: FilterChipsProps) {
+  const hasActiveFilter = Boolean(season || taste);
+
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className={['flex flex-wrap items-center gap-2', className].join(' ')}>
       <div className="flex flex-wrap gap-2">
         {seasons.map((item) => (
           <button
@@ -46,6 +50,15 @@ export default function FilterChips({ season, taste, onSeasonChange, onTasteChan
           </button>
         ))}
       </div>
+      {onReset && hasActiveFilter ? (
+        <button
+          type="button"
+          onClick={onReset}
+          className="ml-1 text-[13px] font-semibold text-sea transition hover:text-sea"
+        >
+          필터 초기화
+        </button>
+      ) : null}
     </div>
   );
 }

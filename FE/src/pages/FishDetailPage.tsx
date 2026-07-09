@@ -1,11 +1,11 @@
-import { Bookmark, ChevronRight, Plus } from 'lucide-react';
+import { Bookmark, Plus } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import FishCard from '../components/FishCard';
 import ReviewForm from '../components/ReviewForm';
 import ReviewList from '../components/ReviewList';
 import SeasonBar from '../components/SeasonBar';
-import { formatMonths, formatPriceLabel, formatPriceLevel, formatSeasonBadge, isInSeasonNow } from '../lib/format';
+import { formatMonths, formatPriceLabel, formatPriceLevel, isInSeasonNow } from '../lib/format';
 import { getErrorMessage } from '../lib/errors';
 import { useFishDetail } from '../hooks/useFish';
 import { useBookmarks } from '../hooks/useBookmarks';
@@ -23,7 +23,6 @@ export default function FishDetailPage() {
   const [reviewSort, setReviewSort] = useState<ReviewSort>('latest');
   const { data: fish, isLoading, isError } = useFishDetail(fishId);
   const { data: reviewList } = useReviews(fishId, reviewSort);
-  const { data: latestReviewList } = useReviews(fishId, 'latest');
   const createMutation = useCreateReview(fishId);
   const deleteMutation = useDeleteReview(fishId);
   const helpfulMutation = useMarkReviewHelpful(fishId);
@@ -92,50 +91,32 @@ export default function FishDetailPage() {
   const reviewCount = reviewList?.totalCount ?? fish.reviewCount;
   const ratingDistribution = reviewList?.ratingDistribution ?? fish.ratingDistribution;
   const tips = fish.tips ?? [];
-  const description = fish.tasteDesc ?? fish.description;
+  const description = fish.description;
+  const tasteDescription = fish.tasteDesc ?? fish.description;
   const bookmarked = isBookmarked(fish.id);
-  const recentReviews = (latestReviewList?.reviews ?? []).slice(0, 3);
   const inSeasonNow = isInSeasonNow(fish.seasonMonths);
 
   return (
-    <main className="mx-auto max-w-[980px] px-4 pb-20 pt-5 sm:px-7">
-      <nav className="flex items-center gap-1.5 px-0 py-2.5 pb-[18px] text-[13.5px] text-ink-mute/70" aria-label="breadcrumb">
-        <Link to="/" className="text-ink-mute hover:text-sea">
-          도감
-        </Link>
-        <ChevronRight className="h-3.5 w-3.5" aria-hidden />
-        <span className="font-medium text-ink">{fish.name}</span>
-      </nav>
-
-      <section className="flex flex-wrap items-start gap-8 lg:gap-11">
-        <div className="min-w-[300px] flex-1 basis-[400px]">
-          <div className="relative flex aspect-[3/2] items-center justify-center overflow-hidden rounded-card bg-chipbg">
+    <main className="mx-auto max-w-[980px] px-4 pb-20 pt-7 sm:px-7">
+      <section className="grid items-start gap-7 lg:grid-cols-[1.05fr_1fr]">
+        <div>
+          <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-chipbg">
             {selectedImage ? (
               <img src={selectedImage} alt={`${fish.name} 회 사진`} className="h-full w-full object-cover" />
             ) : (
               <FishPlaceholder className="h-[105px] w-[168px] stroke-ink-mute/30" />
             )}
-            <button
-              type="button"
-              onClick={() => toggleBookmark(fish.id)}
-              className="absolute right-4 top-4 inline-flex h-10 items-center gap-1.5 rounded-full border-0 bg-white/95 px-4 text-sm font-semibold text-ink shadow-sm transition hover:text-sea"
-              aria-label={bookmarked ? '생선 저장 해제' : '생선 저장'}
-              aria-pressed={bookmarked}
-            >
-              <Bookmark className={bookmarked ? 'h-4 w-4 fill-sea text-sea' : 'h-4 w-4 fill-none text-ink-mute/70'} aria-hidden />
-              {bookmarked ? '저장됨' : '저장'}
-            </button>
           </div>
           {galleryImages.length > 0 ? (
-            <div className="mt-3 flex gap-2.5">
-              {galleryImages.map((image, index) => (
+            <div className="mt-2 grid grid-cols-4 gap-2">
+              {galleryImages.slice(0, 4).map((image, index) => (
                 <button
                   key={`${image}-${index}`}
                   type="button"
                   onClick={() => setSelectedImageIndex(index)}
                   className={[
-                    'aspect-square min-w-0 flex-1 overflow-hidden rounded-[10px] bg-chipbg',
-                    selectedImageIndex === index ? 'border-2 border-sea' : 'border border-transparent',
+                    'aspect-[4/3] min-w-0 overflow-hidden rounded-[9px] bg-chipbg outline-offset-1 transition',
+                    selectedImageIndex === index ? 'outline outline-2 outline-sea' : 'outline outline-1 outline-transparent hover:outline-line',
                   ].join(' ')}
                   aria-label={`${fish.name} 이미지 ${index + 1}`}
                 >
@@ -144,114 +125,108 @@ export default function FishDetailPage() {
               ))}
             </div>
           ) : null}
-
-          {recentReviews.length > 0 ? (
-            <div className="mt-5 rounded-card border border-line bg-white px-5 py-[18px]">
-              <div className="mb-3 flex items-center justify-between">
-                <span className="text-[13.5px] font-semibold text-ink">최근 후기</span>
-                <button
-                  type="button"
-                  onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                  className="bg-transparent text-[12.5px] font-semibold text-sea transition hover:text-sea"
-                >
-                  후기 {reviewCount}개 전체 보기
-                </button>
-              </div>
-              <div className="flex flex-col gap-3">
-                {recentReviews.map((review) => (
-                  <div key={review.id} className="flex items-start gap-3">
-                    {review.imageUrl ? (
-                      <img src={review.imageUrl} alt="" className="h-14 w-14 flex-none rounded-[10px] border border-line object-cover" />
-                    ) : null}
-                    <div className="min-w-0">
-                      <div className="mb-0.5 flex items-center gap-1.5">
-                        <RatingStars rating={review.rating ?? 0} className="text-[12px]" />
-                        <span className="truncate text-[12px] font-semibold text-ink-mute">{review.nickname}</span>
-                      </div>
-                      <p className="m-0 line-clamp-2 break-words text-[13.5px] leading-[1.55] text-ink">{review.content}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : null}
         </div>
 
-        <div className="min-w-[300px] flex-1 basis-[420px]">
-          <div className="mb-3 flex items-center gap-[9px]">
+        <div className="min-w-0">
+          <Link to="/" className="mb-3 inline-flex text-[13px] font-medium text-ink-mute transition hover:text-sea">
+            ← 도감으로
+          </Link>
+
+          <div className="mb-2 min-h-[26px]">
             {inSeasonNow ? (
               <span className="inline-flex items-center gap-[5px] rounded-full bg-sea px-2.5 py-[3px] text-xs font-bold text-white">
                 <span className="h-[5px] w-[5px] rounded-full bg-white" aria-hidden />
                 지금 제철
               </span>
-            ) : (
-              <span className="inline-flex rounded-full border border-line bg-white px-2.5 py-[3px] text-xs font-semibold text-ink-mute">
-                {formatSeasonBadge(fish.seasonMonths)}
-              </span>
-            )}
-            <span className="text-[13px] font-bold tabular-nums text-ink">
-              {formatPriceLevel(fish.priceLevel)} <span className="font-medium text-ink-mute">{formatPriceLabel(fish.priceLevel)}</span>
-            </span>
+            ) : null}
           </div>
 
-          <div className="mb-2.5 flex items-baseline gap-2.5">
-            <h1 className="m-0 text-[32px] font-bold leading-tight tracking-normal text-ink">{fish.name}</h1>
-            {fish.nameEn ? <span className="text-base text-ink-mute/70">{fish.nameEn}</span> : null}
+          <div className="mb-2.5">
+            <h1 className="m-0 text-[26px] font-extrabold leading-tight tracking-normal text-ink">{fish.name}</h1>
+            {fish.nameEn ? <p className="m-0 mt-0.5 text-sm leading-snug text-ink-mute">{fish.nameEn}</p> : null}
           </div>
+
+          {description ? <p className="m-0 mb-3 text-[15px] leading-[1.7] text-ink">{description}</p> : null}
 
           {reviewCount > 0 ? (
-            <div className="mb-[22px] flex items-center gap-1 text-[13px] font-bold tabular-nums text-ink">
+            <div className="mb-4 flex items-center gap-1 text-sm font-bold tabular-nums text-ink">
               <span className="text-star">★</span>
               <span>{avgRating.toFixed(1)}</span>
+              <span className="font-medium text-ink-mute">·</span>
               <button
                 type="button"
                 onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                className="bg-transparent font-medium text-ink-mute underline underline-offset-2"
+                className="bg-transparent font-medium text-ink-mute transition hover:text-sea"
               >
-                ({reviewCount})
+                후기 {reviewCount}개
               </button>
             </div>
           ) : (
-            <p className="mb-[22px] mt-0 text-sm text-ink-mute">아직 후기가 없어요</p>
+            <p className="mb-4 mt-0 text-sm text-ink-mute">아직 후기가 없어요</p>
           )}
 
-          {description ? <p className="m-0 mb-6 text-[15.5px] leading-[1.7] text-ink">{description}</p> : null}
-
-          <div className="mb-6 grid grid-cols-2 gap-px overflow-hidden rounded-[14px] border border-line bg-line">
+          <div className="mb-5 grid grid-cols-3 overflow-hidden rounded-card border border-line bg-white">
             <SpecCell label="제철" value={formatMonths(fish.seasonMonths)} />
+            <SpecCell label="맛" value={fish.tasteTags.length > 0 ? fish.tasteTags.join(' · ') : '정보 준비 중'} />
             <SpecCell label="가격대" value={formatPriceLevel(fish.priceLevel)} subValue={formatPriceLabel(fish.priceLevel)} strongClassName="text-ink" />
-            <SpecCell label="맛 프로필" value={fish.tasteTags.length > 0 ? fish.tasteTags.join(' · ') : '정보 준비 중'} />
-            <SpecCell label="평균 별점" value={reviewCount > 0 ? `★ ${avgRating.toFixed(1)} (${reviewCount})` : '아직 후기가 없어요'} strongClassName="text-ink" />
           </div>
 
-          <div className="mb-6 rounded-[14px] border border-line bg-white px-5 py-[18px]">
-            <div className="mb-3.5 text-[13.5px] font-semibold">
-              월별 제철 <span className="text-[12.5px] font-normal text-ink-mute/70">· 진한 달이 제철</span>
-            </div>
+          <div className="mb-5">
             <SeasonBar months={fish.seasonMonths} />
           </div>
 
-          <div className="rounded-[14px] border border-line bg-white px-5 py-[18px]">
-            <div className="mb-3 text-[13.5px] font-semibold">이렇게 즐겨요</div>
-            {tips.length > 0 ? (
-              <div className="flex flex-col gap-[11px]">
-                {tips.map((tip, index) => (
-                  <div key={`${tip}-${index}`} className="flex items-start gap-2.5">
-                    <span className="mt-px flex h-5 w-5 flex-none items-center justify-center rounded-full bg-chipbg text-[11px] font-bold text-ink">{index + 1}</span>
-                    <span className="text-sm leading-[1.55] text-ink">{tip}</span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="m-0 text-sm text-ink-mute">준비된 팁이 없습니다.</p>
-            )}
+          <div className="flex flex-wrap gap-2.5">
+            <button
+              type="button"
+              onClick={() => toggleBookmark(fish.id)}
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-[10px] border border-sea bg-sea px-5 py-2.5 text-sm font-bold text-white transition hover:bg-sea"
+              aria-label={bookmarked ? '생선 저장 해제' : '생선 저장'}
+              aria-pressed={bookmarked}
+            >
+              <Bookmark className={bookmarked ? 'h-4 w-4 fill-white text-white' : 'h-4 w-4 fill-none text-white'} aria-hidden />
+              {bookmarked ? '저장됨' : '저장하기'}
+            </button>
+            <button
+              type="button"
+              onClick={openReviewForm}
+              className="inline-flex min-h-11 flex-1 items-center justify-center rounded-[10px] border border-line bg-white px-5 py-2.5 text-sm font-bold text-ink transition hover:border-sea hover:text-sea"
+            >
+              후기 쓰기
+            </button>
           </div>
         </div>
       </section>
 
+      <section className="mt-11">
+        <h2 className="m-0 mb-3.5 text-[19px] font-extrabold tracking-normal text-ink">어떤 맛인가요?</h2>
+        {tasteDescription ? (
+          <p className="m-0 max-w-[640px] text-[15px] leading-[1.8] text-ink">{tasteDescription}</p>
+        ) : (
+          <p className="m-0 text-sm text-ink-mute">맛 설명을 준비 중입니다.</p>
+        )}
+      </section>
+
+      <section className="mt-9">
+        <h2 className="m-0 mb-3.5 text-[19px] font-extrabold tracking-normal text-ink">이렇게 즐겨요</h2>
+        {tips.length > 0 ? (
+          <ul className="m-0 grid list-none gap-2 p-0">
+            {tips.map((tip, index) => (
+              <li key={`${tip}-${index}`} className="flex items-start gap-2.5 rounded-[12px] border border-line bg-white px-4 py-3 text-sm leading-[1.7] text-ink">
+                <span className="mt-[2px] flex h-5 w-5 flex-none items-center justify-center rounded-full bg-chipbg text-[11px] font-bold text-ink-mute">
+                  {index + 1}
+                </span>
+                <span>{tip}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="m-0 text-sm text-ink-mute">준비된 팁이 없습니다.</p>
+        )}
+      </section>
+
       {fish.similarFishes.length > 0 ? (
-        <section className="mt-14">
-          <h2 className="m-0 mb-[18px] text-xl font-bold tracking-normal text-ink">비슷한 생선</h2>
+        <section className="mt-9">
+          <h2 className="m-0 mb-3.5 text-[19px] font-extrabold tracking-normal text-ink">비슷한 생선</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {fish.similarFishes.map((similar) => (
               <FishCard key={similar.id} fish={similar} compact />
@@ -345,11 +320,11 @@ function SpecCell({
   strongClassName?: string;
 }) {
   return (
-    <div className="bg-white px-[17px] py-[15px]">
-      <div className="mb-[5px] text-xs text-ink-mute/70">{label}</div>
-      <div className={['text-[15px] font-semibold', strongClassName].join(' ')}>
+    <div className="border-r border-line px-3.5 py-3 last:border-r-0 sm:px-4">
+      <div className="mb-[5px] text-xs font-semibold text-ink-mute">{label}</div>
+      <div className={['break-keep text-sm font-bold leading-snug', strongClassName].join(' ')}>
         {value}
-        {subValue ? <span className="ml-1 text-[13px] font-normal text-ink-mute/70">{subValue}</span> : null}
+        {subValue ? <span className="ml-1 font-medium text-ink-mute">{subValue}</span> : null}
       </div>
     </div>
   );

@@ -12,12 +12,11 @@ export default function SavedPage() {
     <main className="mx-auto max-w-[980px] px-4 pb-20 pt-8 sm:px-7">
       <div className="mb-[22px] flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="mb-1.5 text-[13px] font-semibold tracking-[0.02em] text-ink-mute">SAVED FISH</p>
-          <h1 className="m-0 text-2xl font-bold tracking-[-0.025em] text-ink">
-            저장한 도감 <span className="text-lg font-medium text-ink-mute/70">{bookmarkCount}종</span>
+          <h1 className="m-0 text-[30px] font-bold tracking-[-0.03em] text-ink">
+            저장한 도감 <span className="text-[20px] font-medium text-ink-mute/70">· {bookmarkCount}종</span>
           </h1>
         </div>
-        <Link to="/search" className="text-sm font-semibold text-sea transition hover:text-sea">
+        <Link to="/" className="text-sm font-semibold text-sea transition hover:text-sea">
           전체 도감 둘러보기
         </Link>
       </div>
@@ -29,7 +28,7 @@ export default function SavedPage() {
         <StateText text="저장한 생선을 현재 도감에서 찾을 수 없습니다." />
       ) : null}
       {!isLoading && !isError && savedFishes.length > 0 ? (
-        <div className="grid gap-5 [grid-template-columns:repeat(auto-fill,minmax(232px,1fr))]">
+        <div className="grid gap-[22px] [grid-template-columns:repeat(auto-fill,minmax(256px,1fr))]">
           {savedFishes.map((fish) => (
             <FishCard key={fish.id} fish={fish} />
           ))}
@@ -51,10 +50,10 @@ function EmptyState() {
           <path d="M6 4h12v16l-6-4-6 4z" />
         </svg>
       </div>
-      <h2 className="mb-2 text-lg font-bold text-ink">저장한 생선이 없어요</h2>
-      <p className="mb-5 text-[14.5px] leading-[1.5] text-ink-mute">도감에서 마음에 드는 생선을 저장해두면 여기에서 다시 볼 수 있어요.</p>
+      <h2 className="mb-2 text-lg font-bold text-ink">아직 저장한 생선이 없어요</h2>
+      <p className="mb-5 text-[14.5px] leading-[1.5] text-ink-mute">마음에 드는 카드의 하트를 눌러 모아보세요</p>
       <Link
-        to="/search"
+        to="/"
         className="inline-flex rounded-[10px] border border-sea bg-white px-[22px] py-[11px] text-sm font-semibold text-sea transition hover:bg-sea-soft"
       >
         도감 둘러보기

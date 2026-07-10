@@ -1,7 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, type ReactNode } from 'react';
+import CardCarousel from '../components/CardCarousel';
 import FilterChips from '../components/FilterChips';
 import FishCard from '../components/FishCard';
+import HomeQuickNav from '../components/HomeQuickNav';
 import SearchBar from '../components/SearchBar';
 import { ErrorState, SkeletonCards } from '../components/Skeletons';
 import { useFishList } from '../hooks/useFish';
@@ -44,26 +46,36 @@ export default function HomePage() {
 
   return (
     <main className="bg-mist pb-20">
-      <section className="mx-auto max-w-[980px] px-4 pb-10 pt-12 text-center sm:px-7">
-        <h1 className="mb-2 text-[28px] font-extrabold leading-tight text-ink">오늘 이 회, 무슨 생선일까요?</h1>
-        <p className="mb-[22px] text-[15px] text-ink-mute">이름·제철·맛·가격대까지, 3초면 확인해요</p>
-        <SearchBar placeholder="생선 이름을 입력해 보세요" onSubmit={goSearch} variant="default" />
-        <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2 text-[13px] text-ink-mute">
-          <span>많이 찾는 생선</span>
-          {popularTags.map((tag) => (
-            <button
-              key={tag}
-              type="button"
-              onClick={() => goSearch(tag)}
-              className="rounded-full bg-chipbg px-3 py-1 text-[13px] font-semibold text-ink transition hover:text-sea"
-            >
-              {tag}
-            </button>
-          ))}
+      <HomeQuickNav />
+
+      <section className="mx-auto max-w-[980px] px-4 pt-5 sm:px-7">
+        <div className="relative overflow-hidden rounded-2xl">
+          <img src="/hero/sea.jpg" alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0A2836]/60 via-[#0A2836]/45 to-[#0A2836]/75" aria-hidden />
+          <div className="relative px-5 py-12 text-center sm:px-8 sm:py-16">
+            <h1 className="mb-2 text-[28px] font-extrabold leading-tight text-white [text-shadow:0_1px_8px_rgba(10,40,54,0.4)]">
+              아는 만큼 맛있어지는 회
+            </h1>
+            <p className="mb-[22px] text-[15px] text-white/85">이름·제철·맛·가격대까지, 3초면 확인해요</p>
+            <SearchBar placeholder="생선 이름을 입력해 보세요" onSubmit={goSearch} variant="default" />
+            <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2 text-[13px] text-white/75">
+              <span>많이 찾는 생선</span>
+              {popularTags.map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => goSearch(tag)}
+                  className="rounded-full bg-white/15 px-3 py-1 text-[13px] font-semibold text-white backdrop-blur-sm transition hover:bg-white/30"
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-[980px] px-4 pt-2 sm:px-7">
+      <section id="section-seasonal" className="mx-auto max-w-[980px] scroll-mt-24 px-4 pt-8 sm:px-7">
         <SectionHeader title={`${currentMonth}월, 지금이 제철이에요`}>
           <Link to="/calendar" className="text-[13px] font-semibold text-sea transition hover:text-sea">
             제철 캘린더 →
@@ -76,17 +88,17 @@ export default function HomePage() {
           <ErrorState message="이달 제철 생선이 아직 없어요" />
         ) : null}
         {!isMonthLoading && !isMonthError && monthFishes.length > 0 ? (
-          <div className="-mx-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
-            <div className="grid auto-cols-[220px] grid-flow-col gap-[14px] sm:auto-cols-fr sm:grid-flow-row sm:grid-cols-2 lg:grid-cols-4">
-              {monthFishes.slice(0, 4).map((fish) => (
-                <FishCard key={fish.id} fish={fish} />
-              ))}
-            </div>
-          </div>
+          <CardCarousel ariaLabel="이달의 제철 생선">
+            {monthFishes.map((fish) => (
+              <div key={fish.id} className="w-[230px] flex-none snap-start">
+                <FishCard fish={fish} />
+              </div>
+            ))}
+          </CardCarousel>
         ) : null}
       </section>
 
-      <section className="mx-auto max-w-[980px] px-4 pt-9 sm:px-7">
+      <section id="section-featured" className="mx-auto max-w-[980px] scroll-mt-24 px-4 pt-9 sm:px-7">
         <SectionHeader title="에디터 추천" />
 
         {isFeaturedLoading ? <SkeletonCards count={2} className="grid gap-[14px] md:grid-cols-2" /> : null}
@@ -95,15 +107,17 @@ export default function HomePage() {
           <ErrorState message="추천 생선이 아직 없어요" />
         ) : null}
         {!isFeaturedLoading && !isFeaturedError && featuredFishes.length > 0 ? (
-          <div className="grid gap-[14px] md:grid-cols-2">
-            {featuredFishes.slice(0, 2).map((fish) => (
-              <FishCard key={fish.id} fish={fish} variant="wide" />
+          <CardCarousel ariaLabel="에디터 추천 생선">
+            {featuredFishes.map((fish) => (
+              <div key={fish.id} className="w-[85%] max-w-[430px] flex-none snap-start sm:w-[430px]">
+                <FishCard fish={fish} variant="wide" />
+              </div>
             ))}
-          </div>
+          </CardCarousel>
         ) : null}
       </section>
 
-      <section className="mx-auto max-w-[980px] px-4 pt-10 sm:px-7">
+      <section id="section-all" className="mx-auto max-w-[980px] scroll-mt-24 px-4 pt-10 sm:px-7">
         <SectionHeader title="전체 도감" count={isLoading || isError ? undefined : `${fishes.length}종`} />
 
         <div className="mb-[18px] flex flex-col gap-3 md:flex-row md:items-start md:justify-between">

@@ -123,7 +123,7 @@ export default function FishDetailPage() {
                   ].join(' ')}
                   aria-label={`${fish.name} 이미지 ${index + 1}`}
                 >
-                  <img src={image} alt="" className="h-full w-full object-cover" />
+                  <img src={image} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
                 </button>
               ))}
             </div>

@@ -14,3 +14,13 @@ jobs:
       - name: Ping health endpoint
         run: |
           curl -fsS --max-time 60 https://api.fishnote.kr/api/v1/health
+
+      # Neon 무료 티어도 유휴 시 잠들어 첫 쿼리가 느려진다.
+      # 한국 활동 시간대(KST 08~24시 = UTC 23~14시)에만 DB까지 깨워두고,
+      # 심야에는 재워서 무료 컴퓨트 시간을 아낀다.
+      - name: Warm DB during KST daytime
+        run: |
+          H=$(date -u +%H)
+          if [ "$H" -ge 23 ] || [ "$H" -le 14 ]; then
+            curl -fsS --max-time 60 "https://api.fishnote.kr/api/v1/fish?month=1" > /dev/null
+          fi

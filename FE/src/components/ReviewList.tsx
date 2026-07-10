@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { optimizedImageUrl } from '../lib/image';
 import type { Review } from '../types/review';
 
 interface ReviewListProps {
@@ -95,7 +96,13 @@ export default function ReviewList({ reviews, onDelete, onHelpful, workingReview
 
             {review.imageUrl ? (
               <a href={review.imageUrl} target="_blank" rel="noreferrer" className="mb-3 block max-w-[420px]">
-                <img src={review.imageUrl} alt="후기 사진" className="max-h-40 w-full rounded-[10px] border border-line object-cover" />
+                <img
+                  src={optimizedImageUrl(review.imageUrl, 800)}
+                  alt="후기 사진"
+                  loading="lazy"
+                  decoding="async"
+                  className="max-h-40 w-full rounded-[10px] border border-line object-cover"
+                />
               </a>
             ) : null}
 

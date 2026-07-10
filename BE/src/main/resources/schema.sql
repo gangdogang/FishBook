@@ -72,6 +72,43 @@ CREATE TABLE IF NOT EXISTS fish_tip (
     PRIMARY KEY (fish_id, tip_order)
 );
 
+-- 노량진 경매/도매 시세 관측값
+CREATE TABLE IF NOT EXISTS market_price_observation (
+    id                     BIGSERIAL PRIMARY KEY,
+    fish_id                BIGINT REFERENCES fish(id) ON DELETE SET NULL,
+    source                 VARCHAR(50) NOT NULL,
+    market                 VARCHAR(100) NOT NULL,
+    observed_date          DATE NOT NULL,
+    canonical_fish_name    VARCHAR(100),
+    noryangjin_species_name VARCHAR(100) NOT NULL,
+    source_species_name    VARCHAR(100) NOT NULL,
+    trade_state            VARCHAR(20),
+    origin                 VARCHAR(100),
+    spec                   VARCHAR(100),
+    package_unit           VARCHAR(50),
+    quantity               NUMERIC(12, 2),
+    weight                 NUMERIC(12, 2),
+    high_price_krw         INTEGER,
+    low_price_krw          INTEGER,
+    avg_price_krw          INTEGER,
+    source_url             TEXT,
+    collected_at           TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT uq_market_price_observation UNIQUE (
+        source,
+        market,
+        observed_date,
+        source_species_name,
+        origin,
+        spec,
+        package_unit,
+        quantity,
+        weight,
+        high_price_krw,
+        low_price_krw,
+        avg_price_krw
+    )
+);
+
 -- 후기
 CREATE TABLE IF NOT EXISTS review (
     id         BIGSERIAL PRIMARY KEY,
@@ -98,3 +135,5 @@ CREATE INDEX IF NOT EXISTS idx_season_month ON fish_season_month(month);
 CREATE INDEX IF NOT EXISTS idx_taste_tag ON fish_taste_tag(tag);
 CREATE INDEX IF NOT EXISTS idx_fish_name ON fish(name);
 CREATE INDEX IF NOT EXISTS idx_user_bookmark_user_created ON user_bookmark(user_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_market_price_fish_date ON market_price_observation(fish_id, observed_date DESC);
+CREATE INDEX IF NOT EXISTS idx_market_price_species_date ON market_price_observation(noryangjin_species_name, observed_date DESC);

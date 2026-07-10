@@ -28,7 +28,7 @@ export default function FishCard({ fish, variant = 'default' }: FishCardProps) {
     >
       <div className={['relative flex items-center justify-center bg-chipbg', isWide ? 'aspect-[5/2]' : 'aspect-[4/3]'].join(' ')}>
         {fish.imageUrl ? (
-          <img src={fish.imageUrl} alt={`${fish.name} 회 사진`} className="h-full w-full object-cover" />
+          <img src={fish.imageUrl} alt={`${fish.name} 회 사진`} loading="lazy" decoding="async" className="h-full w-full object-cover" />
         ) : (
           <FishPlaceholder className={isWide ? 'h-[60px] w-[96px] stroke-ink-mute/30' : 'h-[51px] w-[82px] stroke-ink-mute/30'} />
         )}

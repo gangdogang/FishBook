@@ -28,7 +28,11 @@ public class ImageService {
         try {
             Map<?, ?> uploadResult = cloudinary.uploader().upload(
                     file.getBytes(),
-                    Map.of("folder", UPLOAD_FOLDER, "resource_type", "image"));
+                    Map.of(
+                            "folder", UPLOAD_FOLDER,
+                            "resource_type", "image",
+                            // 폰 원본(수 MB)을 그대로 저장하지 않도록 업로드 시점에 축소
+                            "transformation", "c_limit,w_1600,q_auto:good"));
             String url = uploadUrl(uploadResult);
             return new ImageUploadResponse(url);
         } catch (IOException ex) {

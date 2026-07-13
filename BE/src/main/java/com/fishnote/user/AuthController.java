@@ -1,13 +1,16 @@
 package com.fishnote.user;
 
 import com.fishnote.user.dto.AuthLoginResponse;
+import com.fishnote.user.dto.AccountDeleteRequest;
 import com.fishnote.user.dto.LoginRequest;
+import com.fishnote.user.dto.KakaoLoginRequest;
 import com.fishnote.user.dto.SignupRequest;
 import com.fishnote.user.dto.UserResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,8 +38,21 @@ public class AuthController {
         return authService.login(request);
     }
 
+    @PostMapping("/kakao")
+    public AuthLoginResponse loginWithKakao(@Valid @RequestBody KakaoLoginRequest request) {
+        return authService.loginWithKakao(request);
+    }
+
     @GetMapping("/me")
     public UserResponse me(@AuthenticationPrincipal Long userId) {
         return authService.me(userId);
+    }
+
+    @DeleteMapping("/me")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAccount(
+            @AuthenticationPrincipal Long userId,
+            @Valid @RequestBody AccountDeleteRequest request) {
+        authService.deleteAccount(userId, request.password());
     }
 }

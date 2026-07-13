@@ -1,10 +1,12 @@
 package com.fishnote.common;
 
 import com.fishnote.image.ImageUploadException;
+import com.fishnote.user.KakaoOAuthException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import java.time.OffsetDateTime;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -66,6 +68,15 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleConflict(ConflictException ex, HttpServletRequest request) {
         return error(HttpStatus.CONFLICT, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(KakaoOAuthException.class)
+    public ResponseEntity<ErrorResponse> handleKakaoOAuth(
+            KakaoOAuthException ex,
+            HttpServletRequest request) {
+        return ResponseEntity
+                .status(ex.getStatus())
+                .body(error(ex.getStatus(), ex.getMessage(), request));
     }
 
     @ExceptionHandler(ImageUploadException.class)

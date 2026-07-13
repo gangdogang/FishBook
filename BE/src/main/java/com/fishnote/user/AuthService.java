@@ -1,9 +1,13 @@
 package com.fishnote.user;
 
 import com.fishnote.common.ConflictException;
+import com.fishnote.common.ForbiddenException;
 import com.fishnote.common.UnauthorizedException;
+import com.fishnote.bookmark.UserBookmarkRepository;
+import com.fishnote.review.ReviewRepository;
 import com.fishnote.security.JwtTokenProvider;
 import com.fishnote.user.dto.AuthLoginResponse;
+import com.fishnote.user.dto.KakaoLoginRequest;
 import com.fishnote.user.dto.LoginRequest;
 import com.fishnote.user.dto.SignupRequest;
 import com.fishnote.user.dto.UserResponse;
@@ -22,11 +26,26 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserBookmarkRepository bookmarkRepository;
+    private final ReviewRepository reviewRepository;
+    private final UserOAuthAccountRepository oauthAccountRepository;
+    private final KakaoOAuthClient kakaoOAuthClient;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
+    public AuthService(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            JwtTokenProvider jwtTokenProvider,
+            UserBookmarkRepository bookmarkRepository,
+            ReviewRepository reviewRepository,
+            UserOAuthAccountRepository oauthAccountRepository,
+            KakaoOAuthClient kakaoOAuthClient) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.bookmarkRepository = bookmarkRepository;
+        this.reviewRepository = reviewRepository;
+        this.oauthAccountRepository = oauthAccountRepository;
+        this.kakaoOAuthClient = kakaoOAuthClient;
     }
 
     @Transactional
@@ -53,9 +72,24 @@ public class AuthService {
         String email = normalizeEmail(request.email());
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UnauthorizedException(LOGIN_FAILED_MESSAGE));
-        if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+        if (user.getPasswordHash() == null
+                || !passwordEncoder.matches(request.password(), user.getPasswordHash())) {
             throw new UnauthorizedException(LOGIN_FAILED_MESSAGE);
         }
+        return new AuthLoginResponse(jwtTokenProvider.createToken(user.getId()), user.getNickname());
+    }
+
+    @Transactional
+    public AuthLoginResponse loginWithKakao(KakaoLoginRequest request) {
+        KakaoOAuthClient.KakaoUser kakaoUser = kakaoOAuthClient.authenticate(
+                request.code(),
+                request.redirectUri());
+
+        User user = oauthAccountRepository
+                .findByProviderAndProviderUserId(OAuthProvider.KAKAO, kakaoUser.providerUserId())
+                .map(UserOAuthAccount::getUser)
+                .orElseGet(() -> registerKakaoUser(kakaoUser));
+
         return new AuthLoginResponse(jwtTokenProvider.createToken(user.getId()), user.getNickname());
     }
 
@@ -66,8 +100,63 @@ public class AuthService {
                 .orElseThrow(() -> new UnauthorizedException("인증이 필요합니다."));
     }
 
+    @Transactional
+    public void deleteAccount(Long userId, String password) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UnauthorizedException("인증이 필요합니다."));
+        if (user.getPasswordHash() != null
+                && (password == null || !passwordEncoder.matches(password, user.getPasswordHash()))) {
+            throw new ForbiddenException("비밀번호가 일치하지 않습니다.");
+        }
+
+        bookmarkRepository.deleteAllByUserId(userId);
+        reviewRepository.anonymizeByUserId(userId);
+        oauthAccountRepository.deleteAllByUserId(userId);
+        userRepository.delete(user);
+    }
+
     private UserResponse toResponse(User user) {
-        return new UserResponse(user.getId(), user.getEmail(), user.getNickname());
+        return new UserResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getNickname(),
+                user.getPasswordHash() != null);
+    }
+
+    private User registerKakaoUser(KakaoOAuthClient.KakaoUser kakaoUser) {
+        String verifiedEmail = kakaoUser.verifiedEmail()
+                && kakaoUser.email() != null
+                && !kakaoUser.email().isBlank()
+                ? normalizeEmail(kakaoUser.email())
+                : null;
+
+        User user = verifiedEmail == null ? createKakaoUser(null, kakaoUser.nickname())
+                : userRepository.findByEmail(verifiedEmail).orElseGet(() ->
+                        createKakaoUser(verifiedEmail, kakaoUser.nickname()));
+
+        if (oauthAccountRepository.existsByProviderAndUserId(OAuthProvider.KAKAO, user.getId())) {
+            throw new ConflictException("이 이메일 계정에는 다른 카카오 계정이 연결되어 있습니다.");
+        }
+
+        oauthAccountRepository.saveAndFlush(
+                new UserOAuthAccount(OAuthProvider.KAKAO, kakaoUser.providerUserId(), user));
+        return user;
+    }
+
+    private User createKakaoUser(String email, String nickname) {
+        User created = new User();
+        created.setEmail(email);
+        created.setPasswordHash(null);
+        created.setNickname(normalizeNickname(nickname));
+        return userRepository.saveAndFlush(created);
+    }
+
+    private String normalizeNickname(String nickname) {
+        String normalized = nickname == null ? "" : nickname.trim();
+        if (normalized.isEmpty()) {
+            return "FishNote 사용자";
+        }
+        return normalized.length() <= 30 ? normalized : normalized.substring(0, 30);
     }
 
     private String normalizeEmail(String email) {

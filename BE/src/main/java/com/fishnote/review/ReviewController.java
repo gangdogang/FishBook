@@ -5,6 +5,7 @@ import com.fishnote.review.dto.ReviewHelpfulResponse;
 import com.fishnote.review.dto.ReviewListResponse;
 import com.fishnote.review.dto.ReviewRequest;
 import com.fishnote.review.dto.ReviewResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -57,7 +58,18 @@ public class ReviewController {
     }
 
     @PostMapping("/reviews/{reviewId}/helpful")
-    public ReviewHelpfulResponse helpful(@PathVariable Long reviewId) {
-        return reviewService.increaseHelpfulCount(reviewId);
+    public ReviewHelpfulResponse helpful(
+            @PathVariable Long reviewId,
+            @AuthenticationPrincipal Long userId,
+            HttpServletRequest request) {
+        return reviewService.increaseHelpfulCount(reviewId, userId, clientIp(request));
+    }
+
+    private String clientIp(HttpServletRequest request) {
+        String forwarded = request.getHeader("X-Forwarded-For");
+        if (forwarded != null && !forwarded.isBlank()) {
+            return forwarded.split(",")[0].trim();
+        }
+        return request.getRemoteAddr();
     }
 }

@@ -30,6 +30,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/api/v1/**").permitAll()
                         .requestMatchers("/api/v1/auth/me", "/api/v1/me/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/integrations/telegram/price-updates").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/fish/*/reviews").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/reviews/*").permitAll()

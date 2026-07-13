@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -53,14 +54,28 @@ public class FishService {
                         .thenComparing(FishSummaryResponse::avgRating, Comparator.reverseOrder())
                         .thenComparing(FishSummaryResponse::name);
 
-        List<Fish> fishes = fishRepository.findAll().stream()
-                .filter(fish -> matchesSearch(fish, search))
-                .filter(fish -> seasonMonths == null || fish.getSeasonMonths().stream().anyMatch(seasonMonths::contains))
-                .filter(fish -> !StringUtils.hasText(taste) || fish.getTasteTags().contains(taste))
-                .filter(fish -> priceLevel == null || priceLevel.equals(fish.getPriceLevel()))
-                .filter(fish -> month == null || fish.getSeasonMonths().contains(month))
-                .filter(fish -> !Boolean.TRUE.equals(featured) || fish.isFeatured())
-                .toList();
+        // 필터는 DB에서 수행 (전체 로드 후 인메모리 필터링 금지 — 데이터 증가 대비)
+        // 컬렉션(제철 월·맛 태그)은 default_batch_fetch_size 배치 페치로 로딩된다.
+        List<Specification<Fish>> specs = new ArrayList<>();
+        if (StringUtils.hasText(search)) {
+            specs.add(FishSpecifications.matchesSearch(search));
+        }
+        if (seasonMonths != null) {
+            specs.add(FishSpecifications.inSeasonMonths(seasonMonths));
+        }
+        if (StringUtils.hasText(taste)) {
+            specs.add(FishSpecifications.hasTasteTag(taste));
+        }
+        if (priceLevel != null) {
+            specs.add(FishSpecifications.hasPriceLevel(priceLevel));
+        }
+        if (month != null) {
+            specs.add(FishSpecifications.inMonth(month));
+        }
+        if (Boolean.TRUE.equals(featured)) {
+            specs.add(FishSpecifications.isFeatured());
+        }
+        List<Fish> fishes = fishRepository.findAll(Specification.allOf(specs));
 
         // 생선별 별점·후기 수를 개별 쿼리 대신 한 번에 집계 (N+1 방지)
         Map<Long, FishRatingStat> stats = ratingStats(fishes.stream().map(Fish::getId).toList());
@@ -82,15 +97,6 @@ public class FishService {
         return fishes.stream()
                 .map(fish -> toSummary(fish, stats.get(fish.getId())))
                 .toList();
-    }
-
-    private boolean matchesSearch(Fish fish, String search) {
-        if (!StringUtils.hasText(search)) {
-            return true;
-        }
-        String keyword = search.toLowerCase(Locale.ROOT);
-        return fish.getName().toLowerCase(Locale.ROOT).contains(keyword)
-                || (fish.getNameEn() != null && fish.getNameEn().toLowerCase(Locale.ROOT).contains(keyword));
     }
 
     private Set<Short> resolveSeason(String season) {

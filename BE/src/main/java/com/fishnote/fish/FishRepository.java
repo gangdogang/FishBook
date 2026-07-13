@@ -5,10 +5,11 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface FishRepository extends JpaRepository<Fish, Long> {
+public interface FishRepository extends JpaRepository<Fish, Long>, JpaSpecificationExecutor<Fish> {
 
     @Override
     @EntityGraph(attributePaths = {"seasonMonths", "tasteTags", "similarFishes"})
@@ -25,4 +26,6 @@ public interface FishRepository extends JpaRepository<Fish, Long> {
 
     @Query("select f.id from Fish f where f.id in :ids")
     List<Long> findExistingIds(@Param("ids") Collection<Long> ids);
+
+    Optional<Fish> findByName(String name);
 }

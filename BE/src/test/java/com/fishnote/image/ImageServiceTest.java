@@ -40,7 +40,7 @@ class ImageServiceTest {
 
     @Test
     void uploadReturnsSecureUrlAndUsesReviewFolder() throws Exception {
-        MockMultipartFile file = imageFile("review.jpg", "image".getBytes());
+        MockMultipartFile file = imageFile("review.jpg", jpegBytes());
         when(cloudinary.uploader()).thenReturn(uploader);
         when(uploader.upload(any(byte[].class), anyMap())).thenReturn(Map.of("secure_url", CLOUDINARY_URL));
 
@@ -91,8 +91,18 @@ class ImageServiceTest {
     }
 
     @Test
+    void spoofedImageContentTypeIsRejected() {
+        // content-type만 image/jpeg이고 실제 내용은 텍스트인 위장 파일
+        MockMultipartFile file = imageFile("fake.jpg", "not-an-image-at-all".getBytes());
+
+        assertThatThrownBy(() -> imageService.upload(file))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("이미지 파일만 업로드할 수 있습니다.");
+    }
+
+    @Test
     void cloudinaryFailureIsWrapped() throws Exception {
-        MockMultipartFile file = imageFile("review.jpg", "image".getBytes());
+        MockMultipartFile file = imageFile("review.jpg", jpegBytes());
         when(cloudinary.uploader()).thenReturn(uploader);
         when(uploader.upload(any(byte[].class), anyMap())).thenThrow(new RuntimeException("cloudinary down"));
 
@@ -103,5 +113,14 @@ class ImageServiceTest {
 
     private MockMultipartFile imageFile(String filename, byte[] content) {
         return new MockMultipartFile("file", filename, MediaType.IMAGE_JPEG_VALUE, content);
+    }
+
+    private static byte[] jpegBytes() {
+        byte[] bytes = new byte[16];
+        bytes[0] = (byte) 0xFF;
+        bytes[1] = (byte) 0xD8;
+        bytes[2] = (byte) 0xFF;
+        bytes[3] = (byte) 0xE0;
+        return bytes;
     }
 }

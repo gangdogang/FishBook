@@ -11,6 +11,11 @@ import com.fishnote.review.dto.ReviewRequest;
 import com.fishnote.review.dto.ReviewResponse;
 import com.fishnote.user.User;
 import com.fishnote.user.UserRepository;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -22,38 +27,55 @@ import org.springframework.util.StringUtils;
 @Service
 public class ReviewService {
 
+    private static final int MAX_PAGE_SIZE = 100;
+    // 서비스가 발급한 Cloudinary URL만 허용 (임의 외부 URL·javascript: 스킴 저장 방지)
+    private static final java.util.regex.Pattern ALLOWED_IMAGE_URL =
+            java.util.regex.Pattern.compile("^https://res\\.cloudinary\\.com/[\\w\\-./%]+$");
+
     private final FishRepository fishRepository;
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ReviewHelpfulVoteRepository helpfulVoteRepository;
+    private final String helpfulVotePepper;
 
     public ReviewService(
             FishRepository fishRepository,
             ReviewRepository reviewRepository,
             UserRepository userRepository,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            ReviewHelpfulVoteRepository helpfulVoteRepository,
+            @Value("${app.helpful-vote.pepper:fishnote-helpful-vote}") String helpfulVotePepper) {
         this.fishRepository = fishRepository;
         this.reviewRepository = reviewRepository;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.helpfulVoteRepository = helpfulVoteRepository;
+        this.helpfulVotePepper = helpfulVotePepper;
     }
 
     @Transactional(readOnly = true)
     public ReviewListResponse findReviews(Long fishId, int page, int size, String sort, Long userId) {
         ensureFishExists(fishId);
-        Pageable pageable = PageRequest.of(page, size, reviewSort(sort));
+        // size 무제한 요청으로 인한 메모리 부담 방지
+        int cappedSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
+        Pageable pageable = PageRequest.of(Math.max(page, 0), cappedSize, reviewSort(sort));
         // 평균·개수는 개별 쿼리 대신 그룹 집계 1회로 (원거리 DB 왕복 최소화)
         FishRatingStat stat = reviewRepository.findRatingStatsByFishIds(java.util.List.of(fishId)).stream()
                 .findFirst()
                 .orElse(null);
+        long totalCount = stat == null ? 0 : stat.getReviewCount();
         return new ReviewListResponse(
                 fishId,
                 averageRating(stat),
-                stat == null ? 0 : stat.getReviewCount(),
+                totalCount,
                 RatingDistribution.from(reviewRepository.countByRatingForFishId(fishId)),
                 reviewRepository.findAllByFishId(fishId, pageable).stream()
                         .map(review -> toResponse(review, userId))
-                        .toList());
+                        .toList(),
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                (long) (pageable.getPageNumber() + 1) * pageable.getPageSize() < totalCount);
     }
 
     @Transactional
@@ -66,7 +88,7 @@ public class ReviewService {
         review.setFish(fish);
         review.setRating(request.rating());
         review.setContent(request.content());
-        review.setImageUrl(request.imageUrl());
+        review.setImageUrl(validImageUrl(request.imageUrl()));
         if (user == null) {
             validateAnonymousReview(request);
             review.setNickname(request.nickname());
@@ -97,11 +119,32 @@ public class ReviewService {
     }
 
     @Transactional
-    public ReviewHelpfulResponse increaseHelpfulCount(Long reviewId) {
+    public ReviewHelpfulResponse increaseHelpfulCount(Long reviewId, Long userId, String clientIp) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new NotFoundException("후기를 찾을 수 없습니다."));
-        review.setHelpfulCount(review.getHelpfulCount() + 1);
-        return new ReviewHelpfulResponse(review.getId(), review.getHelpfulCount());
+        String voterKey = voterKey(userId, clientIp);
+        if (helpfulVoteRepository.existsByReviewIdAndVoterKey(reviewId, voterKey)) {
+            return new ReviewHelpfulResponse(reviewId, review.getHelpfulCount());
+        }
+
+        helpfulVoteRepository.save(new ReviewHelpfulVote(review, voterKey));
+        // read-modify-write 대신 원자적 UPDATE로 동시 요청 시 증가분 유실 방지
+        if (reviewRepository.incrementHelpfulCount(reviewId) == 0) {
+            throw new NotFoundException("후기를 찾을 수 없습니다.");
+        }
+        int helpfulCount = reviewRepository.findHelpfulCountById(reviewId).orElse(0);
+        return new ReviewHelpfulResponse(reviewId, helpfulCount);
+    }
+
+    private String voterKey(Long userId, String clientIp) {
+        String identity = userId == null ? "ip:" + clientIp : "user:" + userId;
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            return HexFormat.of().formatHex(digest.digest(
+                    (helpfulVotePepper + ':' + identity).getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException ex) {
+            throw new IllegalStateException("SHA-256 is not available", ex);
+        }
     }
 
     private void ensureFishExists(Long fishId) {
@@ -123,6 +166,16 @@ public class ReviewService {
             throw new IllegalArgumentException("nickname은 30자 이하여야 합니다.");
         }
         validPassword(request.password());
+    }
+
+    private String validImageUrl(String imageUrl) {
+        if (!StringUtils.hasText(imageUrl)) {
+            return null;
+        }
+        if (imageUrl.length() > 500 || !ALLOWED_IMAGE_URL.matcher(imageUrl).matches()) {
+            throw new IllegalArgumentException("imageUrl은 이미지 업로드로 발급된 URL만 사용할 수 있습니다.");
+        }
+        return imageUrl;
     }
 
     private String validPassword(String password) {

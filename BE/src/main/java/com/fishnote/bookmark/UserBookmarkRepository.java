@@ -31,4 +31,8 @@ public interface UserBookmarkRepository extends JpaRepository<UserBookmark, User
             where b.id.userId = :userId and b.id.fishId = :fishId
             """)
     int deleteByUserIdAndFishId(@Param("userId") Long userId, @Param("fishId") Long fishId);
+
+    @Modifying
+    @Query("delete from UserBookmark b where b.id.userId = :userId")
+    int deleteAllByUserId(@Param("userId") Long userId);
 }

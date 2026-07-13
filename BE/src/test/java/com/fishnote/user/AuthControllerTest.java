@@ -2,7 +2,10 @@ package com.fishnote.user;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -13,6 +16,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -33,13 +37,21 @@ class AuthControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private UserOAuthAccountRepository oauthAccountRepository;
+
+    @MockBean
+    private KakaoOAuthClient kakaoOAuthClient;
+
     @BeforeEach
     void setUp() {
+        oauthAccountRepository.deleteAll();
         userRepository.deleteAll();
     }
 
     @AfterEach
     void tearDown() {
+        oauthAccountRepository.deleteAll();
         userRepository.deleteAll();
     }
 
@@ -125,6 +137,155 @@ class AuthControllerTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.status", is(401)))
                 .andExpect(jsonPath("$.message", is("인증이 필요합니다.")));
+    }
+
+    @Test
+    void kakaoLoginCreatesAccountAndReturnsFishnoteToken() throws Exception {
+        String redirectUri = "http://localhost:5173/auth/kakao/callback";
+        when(kakaoOAuthClient.authenticate("authorization-code", redirectUri))
+                .thenReturn(new KakaoOAuthClient.KakaoUser(
+                        "kakao-user-123",
+                        "kakao@example.com",
+                        "카카오회러버",
+                        true));
+
+        String loginResponse = mockMvc.perform(post("/api/v1/auth/kakao")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of(
+                                "code", "authorization-code",
+                                "redirectUri", redirectUri))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken", notNullValue()))
+                .andExpect(jsonPath("$.nickname", is("카카오회러버")))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String token = objectMapper.readTree(loginResponse).get("accessToken").asText();
+        mockMvc.perform(get("/api/v1/auth/me")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email", is("kakao@example.com")))
+                .andExpect(jsonPath("$.nickname", is("카카오회러버")))
+                .andExpect(jsonPath("$.hasPassword", is(false)));
+
+        org.assertj.core.api.Assertions.assertThat(userRepository.count()).isEqualTo(1);
+        org.assertj.core.api.Assertions.assertThat(oauthAccountRepository.count()).isEqualTo(1);
+    }
+
+    @Test
+    void kakaoLoginLinksExistingEmailAccountWithoutDuplicatingUser() throws Exception {
+        signup("linked@example.com", "password123", "기존닉네임");
+        String redirectUri = "http://localhost:5173/auth/kakao/callback";
+        when(kakaoOAuthClient.authenticate("link-code", redirectUri))
+                .thenReturn(new KakaoOAuthClient.KakaoUser(
+                        "kakao-user-456",
+                        "linked@example.com",
+                        "카카오닉네임",
+                        true));
+
+        mockMvc.perform(post("/api/v1/auth/kakao")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("code", "link-code", "redirectUri", redirectUri))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nickname", is("기존닉네임")));
+
+        org.assertj.core.api.Assertions.assertThat(userRepository.count()).isEqualTo(1);
+        org.assertj.core.api.Assertions.assertThat(oauthAccountRepository.count()).isEqualTo(1);
+
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of(
+                                "email", "linked@example.com",
+                                "password", "password123"))))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void kakaoLoginWithoutEmailCreatesProviderOnlyAccount() throws Exception {
+        String redirectUri = "http://localhost:5173/auth/kakao/callback";
+        when(kakaoOAuthClient.authenticate("no-email-code", redirectUri))
+                .thenReturn(new KakaoOAuthClient.KakaoUser(
+                        "kakao-user-789",
+                        null,
+                        "카카오사용자",
+                        false));
+
+        String loginResponse = mockMvc.perform(post("/api/v1/auth/kakao")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("code", "no-email-code", "redirectUri", redirectUri))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken", notNullValue()))
+                .andExpect(jsonPath("$.nickname", is("카카오사용자")))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String token = objectMapper.readTree(loginResponse).get("accessToken").asText();
+        mockMvc.perform(get("/api/v1/auth/me")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email", nullValue()))
+                .andExpect(jsonPath("$.nickname", is("카카오사용자")))
+                .andExpect(jsonPath("$.hasPassword", is(false)));
+
+        org.assertj.core.api.Assertions.assertThat(userRepository.count()).isEqualTo(1);
+        org.assertj.core.api.Assertions.assertThat(oauthAccountRepository.count()).isEqualTo(1);
+    }
+
+    @Test
+    void kakaoOnlyUserCanDeleteAccountWithoutPassword() throws Exception {
+        String redirectUri = "http://localhost:5173/auth/kakao/callback";
+        when(kakaoOAuthClient.authenticate("delete-kakao-code", redirectUri))
+                .thenReturn(new KakaoOAuthClient.KakaoUser(
+                        "kakao-user-delete",
+                        "delete-kakao@example.com",
+                        "탈퇴카카오",
+                        true));
+
+        String loginResponse = mockMvc.perform(post("/api/v1/auth/kakao")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of(
+                                "code", "delete-kakao-code",
+                                "redirectUri", redirectUri))))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        String token = objectMapper.readTree(loginResponse).get("accessToken").asText();
+
+        mockMvc.perform(delete("/api/v1/auth/me")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isNoContent());
+
+        org.assertj.core.api.Assertions.assertThat(userRepository.count()).isZero();
+        org.assertj.core.api.Assertions.assertThat(oauthAccountRepository.count()).isZero();
+    }
+
+    @Test
+    void authenticatedUserCanDeleteAccountWithPassword() throws Exception {
+        signup("delete-account@example.com", "password123", "탈퇴회원");
+        String loginResponse = mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of(
+                                "email", "delete-account@example.com",
+                                "password", "password123"))))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        String token = objectMapper.readTree(loginResponse).get("accessToken").asText();
+
+        mockMvc.perform(delete("/api/v1/auth/me")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("password", "password123"))))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/api/v1/auth/me")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test

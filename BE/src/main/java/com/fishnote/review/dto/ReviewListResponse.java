@@ -8,6 +8,9 @@ public record ReviewListResponse(
         double avgRating,
         long totalCount,
         Map<String, Long> ratingDistribution,
-        List<ReviewResponse> reviews
+        List<ReviewResponse> reviews,
+        int page,
+        int size,
+        boolean hasNext
 ) {
 }

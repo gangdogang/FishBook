@@ -78,6 +78,21 @@ class ReviewControllerTest {
     }
 
     @Test
+    void helpfulDoesNotIncrementTwiceForSameAnonymousVoter() throws Exception {
+        Review review = reviewRepository.save(review(fish, "회러버", 5, 4));
+
+        mockMvc.perform(post("/api/v1/reviews/{id}/helpful", review.getId())
+                        .header("X-Forwarded-For", "203.0.113.10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.helpfulCount", is(5)));
+
+        mockMvc.perform(post("/api/v1/reviews/{id}/helpful", review.getId())
+                        .header("X-Forwarded-For", "203.0.113.10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.helpfulCount", is(5)));
+    }
+
+    @Test
     void helpfulSortReturnsHigherHelpfulCountFirst() throws Exception {
         reviewRepository.save(review(fish, "낮은추천", 4, 1));
         Review popular = reviewRepository.save(review(fish, "높은추천", 5, 8));
@@ -128,7 +143,7 @@ class ReviewControllerTest {
                                 "nickname", "요청닉",
                                 "rating", 5,
                                 "content", "회원 후기",
-                                "imageUrl", "https://example.com/review.jpg"))))
+                                "imageUrl", "https://res.cloudinary.com/demo/image/upload/fishnote/reviews/review.jpg"))))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.nickname", is("회원닉")))
                 .andExpect(jsonPath("$.mine", is(true)))

@@ -25,10 +25,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 255)
+    @Column(length = 255)
     private String email;
 
-    @Column(name = "password_hash", nullable = false, columnDefinition = "text")
+    @Column(name = "password_hash", columnDefinition = "text")
     private String passwordHash;
 
     @Column(nullable = false, length = 30)

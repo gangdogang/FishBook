@@ -1,6 +1,6 @@
 -- FishNote 스키마 (PostgreSQL)
 -- docs/01_DB설계.md 의 DDL 그대로. 재기동 시 안전하도록 IF NOT EXISTS 추가.
--- spring.jpa.hibernate.ddl-auto=validate 가 이 스키마에 대해 엔티티 매핑을 검증한다.
+-- Flyway가 스키마를 변경하고 Hibernate ddl-auto=validate가 엔티티 매핑을 검증한다.
 
 -- 생선
 CREATE TABLE IF NOT EXISTS fish (
@@ -109,6 +109,36 @@ CREATE TABLE IF NOT EXISTS market_price_observation (
     )
 );
 
+-- 상회/카톡방/수동 입력 기반 시세 관측값
+CREATE TABLE IF NOT EXISTS shop_price_observation (
+    id                  BIGSERIAL PRIMARY KEY,
+    fish_id             BIGINT REFERENCES fish(id) ON DELETE SET NULL,
+    observed_at         TIMESTAMPTZ NOT NULL,
+    source_type         VARCHAR(50) NOT NULL,
+    source_name         VARCHAR(100),
+    speaker             VARCHAR(100),
+    canonical_fish_name VARCHAR(100),
+    reported_name       VARCHAR(100) NOT NULL,
+    condition           VARCHAR(50),
+    origin              VARCHAR(100),
+    size_grade          VARCHAR(100),
+    unit                VARCHAR(30),
+    price_min_krw       INTEGER NOT NULL,
+    price_max_krw       INTEGER NOT NULL,
+    confidence          NUMERIC(3, 2) NOT NULL DEFAULT 0.5,
+    raw_text            TEXT NOT NULL,
+    collected_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT uq_shop_price_observation UNIQUE (
+        observed_at,
+        source_type,
+        source_name,
+        reported_name,
+        price_min_krw,
+        price_max_krw,
+        raw_text
+    )
+);
+
 -- 후기
 CREATE TABLE IF NOT EXISTS review (
     id         BIGSERIAL PRIMARY KEY,
@@ -129,11 +159,23 @@ ALTER TABLE review ALTER COLUMN password_hash DROP DEFAULT;
 ALTER TABLE review ADD COLUMN IF NOT EXISTS user_id BIGINT REFERENCES users(id) ON DELETE SET NULL;
 ALTER TABLE review ADD COLUMN IF NOT EXISTS helpful_count INT NOT NULL DEFAULT 0;
 
+-- 후기 도움돼요 중복 방지 (회원 또는 익명 IP 해시 기준)
+CREATE TABLE IF NOT EXISTS review_helpful_vote (
+    id         BIGSERIAL PRIMARY KEY,
+    review_id  BIGINT NOT NULL REFERENCES review(id) ON DELETE CASCADE,
+    voter_key  VARCHAR(64) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT uq_review_helpful_vote UNIQUE (review_id, voter_key)
+);
+
 -- 인덱스
 CREATE INDEX IF NOT EXISTS idx_review_fish ON review(fish_id);
+CREATE INDEX IF NOT EXISTS idx_review_helpful_vote_review ON review_helpful_vote(review_id);
 CREATE INDEX IF NOT EXISTS idx_season_month ON fish_season_month(month);
 CREATE INDEX IF NOT EXISTS idx_taste_tag ON fish_taste_tag(tag);
 CREATE INDEX IF NOT EXISTS idx_fish_name ON fish(name);
 CREATE INDEX IF NOT EXISTS idx_user_bookmark_user_created ON user_bookmark(user_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_market_price_fish_date ON market_price_observation(fish_id, observed_date DESC);
 CREATE INDEX IF NOT EXISTS idx_market_price_species_date ON market_price_observation(noryangjin_species_name, observed_date DESC);
+CREATE INDEX IF NOT EXISTS idx_shop_price_fish_observed ON shop_price_observation(fish_id, observed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_shop_price_name_observed ON shop_price_observation(canonical_fish_name, observed_at DESC);

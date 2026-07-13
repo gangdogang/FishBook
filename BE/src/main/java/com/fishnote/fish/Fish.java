@@ -88,7 +88,7 @@ public class Fish {
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "fish_tip", joinColumns = @JoinColumn(name = "fish_id"))
-    @OrderColumn(name = "tip_order", nullable = false)
+    @OrderColumn(name = "tip_order", nullable = false, columnDefinition = "smallint")
     @Column(name = "content", nullable = false, columnDefinition = "text")
     private List<String> tips = new ArrayList<>();
 

@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -36,4 +37,16 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             group by r.fish.id
             """)
     List<FishRatingStat> findRatingStatsByFishIds(@Param("fishIds") Collection<Long> fishIds);
+
+    // 동시 요청 시 lost update가 없도록 DB에서 원자적으로 증가시킨다
+    @Modifying(clearAutomatically = true)
+    @Query("update Review r set r.helpfulCount = r.helpfulCount + 1 where r.id = :reviewId")
+    int incrementHelpfulCount(@Param("reviewId") Long reviewId);
+
+    @Query("select r.helpfulCount from Review r where r.id = :reviewId")
+    Optional<Integer> findHelpfulCountById(@Param("reviewId") Long reviewId);
+
+    @Modifying(clearAutomatically = true)
+    @Query("update Review r set r.user = null where r.user.id = :userId")
+    int anonymizeByUserId(@Param("userId") Long userId);
 }

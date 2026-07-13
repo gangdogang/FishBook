@@ -43,3 +43,39 @@ export interface FishDetail extends FishSummary {
   tips: string[];
   similarFishes: SimilarFish[];
 }
+
+export interface FishPriceObservation {
+  observedAt: string;
+  priceMinKrw: number;
+  priceMaxKrw: number;
+  unit: string | null;
+  origin: string | null;
+  sizeGrade: string | null;
+  sourceLabel: string;
+  shopName: string | null;
+}
+
+export interface FishPriceTrendPoint {
+  observedDate: string;
+  priceMinKrw: number;
+  priceMaxKrw: number;
+  avgPriceKrw: number;
+  observationCount: number;
+}
+
+export interface FishShopPriceSeries {
+  shopName: string;
+  observationCount: number;
+  latest: FishPriceObservation;
+  graph: FishPriceTrendPoint[];
+}
+
+export interface FishPriceSummary {
+  fishId: number;
+  days: number;
+  observationCount: number;
+  latest: FishPriceObservation | null;
+  recent: FishPriceObservation[];
+  dailyAverage: FishPriceTrendPoint[];
+  byShop: FishShopPriceSeries[];
+}

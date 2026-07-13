@@ -10,10 +10,10 @@ import { SeasonBadgeNow } from '../components/SeasonBadge';
 import { DetailSkeleton } from '../components/Skeletons';
 import { formatMonths, formatPriceLabel, formatPriceLevel, isInSeasonNow } from '../lib/format';
 import { getErrorMessage } from '../lib/errors';
-import { useFishDetail } from '../hooks/useFish';
+import { useFishDetail, useFishPrices } from '../hooks/useFish';
 import { useBookmarks } from '../hooks/useBookmarks';
 import { useCreateReview, useDeleteReview, useMarkReviewHelpful, useReviews } from '../hooks/useReviews';
-import type { RatingDistribution } from '../types/fish';
+import type { FishPriceObservation, FishPriceSummary, FishPriceTrendPoint, RatingDistribution } from '../types/fish';
 import type { ReviewRequest, ReviewSort } from '../types/review';
 
 export default function FishDetailPage() {
@@ -26,6 +26,7 @@ export default function FishDetailPage() {
   const [reviewSort, setReviewSort] = useState<ReviewSort>('latest');
   const reviewFormRef = useRef<HTMLFormElement>(null);
   const { data: fish, isLoading, isError } = useFishDetail(fishId);
+  const { data: priceSummary } = useFishPrices(fishId);
   const { data: reviewList } = useReviews(fishId, reviewSort);
   const createMutation = useCreateReview(fishId);
   const deleteMutation = useDeleteReview(fishId);
@@ -193,6 +194,8 @@ export default function FishDetailPage() {
         </div>
       </section>
 
+      {priceSummary?.latest ? <PriceStatusSection fishName={fish.name} summary={priceSummary} /> : null}
+
       <section className="mt-11">
         <h2 className="m-0 mb-3.5 text-[19px] font-extrabold tracking-normal text-ink">어떤 맛인가요?</h2>
         {tasteDescription ? (
@@ -284,6 +287,150 @@ export default function FishDetailPage() {
       </section>
     </main>
   );
+}
+
+function PriceStatusSection({ fishName, summary }: { fishName: string; summary: FishPriceSummary }) {
+  const latest = summary.latest;
+  const shops = summary.byShop ?? [];
+  if (!latest) return null;
+
+  return (
+    <section className="mt-11" aria-labelledby="price-status-heading">
+      <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2">
+        <h2 id="price-status-heading" className="m-0 text-[19px] font-extrabold tracking-normal text-ink">
+          가격 현황
+        </h2>
+        <span className="rounded-full bg-chipbg px-3 py-1.5 text-xs font-semibold tabular-nums text-ink-mute">
+          최근 {summary.days}일 · {summary.observationCount}건
+        </span>
+      </div>
+
+      <article className="rounded-card border border-line bg-white px-4 py-4 sm:px-5">
+        <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-end">
+          <div>
+            <p className="m-0 text-[13px] font-semibold text-ink-mute">{fishName} 최신 관측가</p>
+            <p className="m-0 mt-1 text-[28px] font-extrabold leading-tight tabular-nums text-ink">{formatObservedPrice(latest)}</p>
+            <p className="m-0 mt-2 text-[13px] leading-[1.6] text-ink-mute">
+              {latest.shopName ?? latest.sourceLabel} · {formatObservedAt(latest.observedAt)}
+            </p>
+          </div>
+
+          <PriceTrendGraph points={summary.dailyAverage ?? []} />
+        </div>
+      </article>
+
+      <div className="mt-3 grid gap-2.5 sm:grid-cols-3">
+        {(shops.length > 0 ? shops.map((shop) => ({ key: shop.shopName, observation: shop.latest, label: shop.shopName, meta: `${shop.observationCount}건 관측` })) : summary.recent.slice(0, 3).map((observation, index) => ({ key: `${observation.observedAt}-${index}`, observation, label: observation.shopName ?? observation.sourceLabel, meta: index === 0 ? '가장 최근' : undefined }))).map((item) => (
+          <PriceObservationCard key={item.key} observation={item.observation} label={item.label} meta={item.meta} />
+        ))}
+      </div>
+
+      <p className="m-0 mt-3 text-xs leading-[1.7] text-ink-mute">
+        상회에서 관측한 참고 가격이에요. 실제 판매가는 중량·손질·포장 방식에 따라 달라질 수 있어요.
+      </p>
+    </section>
+  );
+}
+
+function PriceTrendGraph({ points }: { points: FishPriceTrendPoint[] }) {
+  if (points.length === 0) {
+    return <div className="flex h-44 items-center justify-center rounded-[10px] bg-chipbg text-sm text-ink-mute">그래프를 만들 시세가 아직 없어요</div>;
+  }
+
+  const width = 640;
+  const height = 184;
+  const paddingX = 34;
+  const paddingY = 24;
+  const values = points.map((point) => point.avgPriceKrw);
+  const minValue = Math.min(...values);
+  const maxValue = Math.max(...values);
+  const range = Math.max(1, maxValue - minValue);
+  const xFor = (index: number) => (points.length === 1 ? width / 2 : paddingX + (index / (points.length - 1)) * (width - paddingX * 2));
+  const yFor = (value: number) => height - paddingY - ((value - minValue) / range) * (height - paddingY * 2);
+  const path = points.map((point, index) => `${index === 0 ? 'M' : 'L'} ${xFor(index).toFixed(1)} ${yFor(point.avgPriceKrw).toFixed(1)}`).join(' ');
+  const first = points[0];
+  const last = points[points.length - 1];
+
+  return (
+    <div className="min-w-0">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <span className="text-[13px] font-semibold text-ink-mute">일별 평균 kg 단가</span>
+        <span className="text-[11px] tabular-nums text-ink-mute">
+          {formatObservedDate(first.observedDate)} - {formatObservedDate(last.observedDate)}
+        </span>
+      </div>
+      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label="최근 시세 일별 평균 그래프" className="h-44 w-full overflow-visible rounded-[10px] bg-chipbg">
+        <line x1={paddingX} y1={paddingY} x2={paddingX} y2={height - paddingY} stroke="rgb(var(--c-line))" strokeWidth="1" />
+        <line x1={paddingX} y1={height - paddingY} x2={width - paddingX} y2={height - paddingY} stroke="rgb(var(--c-line))" strokeWidth="1" />
+        <text x={paddingX} y={paddingY - 8} fill="rgb(var(--c-ink-mute))" fontSize="11">
+          {formatCompactPrice(maxValue)}
+        </text>
+        <text x={paddingX} y={height - 7} fill="rgb(var(--c-ink-mute))" fontSize="11">
+          {formatCompactPrice(minValue)}
+        </text>
+        {points.length > 1 ? <path d={path} fill="none" stroke="rgb(var(--c-sea))" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" /> : null}
+        {points.map((point, index) => {
+          const x = xFor(index);
+          const y = yFor(point.avgPriceKrw);
+          return (
+            <g key={point.observedDate}>
+              <circle cx={x} cy={y} r="5" fill="white" stroke="rgb(var(--c-sea))" strokeWidth="3" />
+              <text x={x} y={height - 7} textAnchor="middle" fill="rgb(var(--c-ink-mute))" fontSize="11">
+                {formatObservedDate(point.observedDate)}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
+function PriceObservationCard({ observation, label, meta }: { observation: FishPriceObservation; label: string; meta?: string }) {
+  const details = [observation.origin, observation.sizeGrade, observation.unit ? `${observation.unit} 기준` : null].filter(Boolean);
+
+  return (
+    <article className="rounded-card border border-line bg-white px-4 py-3.5">
+      <div className="mb-1.5 flex items-center justify-between gap-2">
+        <span className="min-w-0 truncate text-xs font-semibold text-ink-mute">{label}</span>
+        <time dateTime={observation.observedAt} className="text-[11px] tabular-nums text-ink-mute">
+          {formatObservedAt(observation.observedAt)}
+        </time>
+      </div>
+      <p className="m-0 text-lg font-extrabold tabular-nums tracking-tight text-ink">{formatObservedPrice(observation)}</p>
+      <p className="m-0 mt-1 min-h-5 text-xs leading-5 text-ink-mute">{details.length > 0 ? details.join(' · ') : '세부 규격 정보 없음'}</p>
+      {meta ? <p className="m-0 mt-2 text-[11px] font-semibold text-ink-mute">{meta}</p> : null}
+    </article>
+  );
+}
+
+function formatObservedPrice(observation: FishPriceObservation) {
+  const format = (value: number) => `${new Intl.NumberFormat('ko-KR').format(value)}원`;
+  return observation.priceMinKrw === observation.priceMaxKrw
+    ? format(observation.priceMinKrw)
+    : `${format(observation.priceMinKrw)}-${format(observation.priceMaxKrw)}`;
+}
+
+function formatObservedAt(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '관측 시각 미상';
+  return new Intl.DateTimeFormat('ko-KR', {
+    month: 'numeric',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
+}
+
+function formatObservedDate(value: string) {
+  const date = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat('ko-KR', { month: 'numeric', day: 'numeric' }).format(date);
+}
+
+function formatCompactPrice(value: number) {
+  if (value >= 10000) return `${(value / 10000).toFixed(value % 10000 === 0 ? 0 : 1)}만`;
+  return new Intl.NumberFormat('ko-KR').format(value);
 }
 
 function SpecCell({

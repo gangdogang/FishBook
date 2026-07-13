@@ -1,11 +1,21 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createReview, deleteReview, getReviews, markReviewHelpful } from '../api/review';
 import type { ReviewRequest, ReviewSort } from '../types/review';
 
 export function useReviews(fishId: number, sort: ReviewSort = 'latest') {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ['reviews', fishId, sort],
-    queryFn: () => getReviews(fishId, sort),
+    queryFn: ({ pageParam }) => getReviews(fishId, sort, pageParam),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => (lastPage.hasNext ? lastPage.page + 1 : undefined),
+    select: (data) => {
+      const firstPage = data.pages[0];
+      if (!firstPage) return undefined;
+      return {
+        ...firstPage,
+        reviews: data.pages.flatMap((page) => page.reviews),
+      };
+    },
     enabled: Number.isFinite(fishId),
   });
 }

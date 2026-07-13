@@ -1,7 +1,13 @@
-import { useCallback, useEffect, useState } from 'react';
+import { createContext, createElement, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getMe, login as loginRequest, signup as signupRequest } from '../api/auth';
-import type { AuthResponse, LoginRequest, SignupRequest } from '../api/auth';
+import {
+  deleteAccount as deleteAccountRequest,
+  getMe,
+  login as loginRequest,
+  loginWithKakao as kakaoLoginRequest,
+  signup as signupRequest,
+} from '../api/auth';
+import type { AuthResponse, KakaoLoginRequest, LoginRequest, SignupRequest } from '../api/auth';
 import { bookmarksMeQueryKey } from '../api/bookmarks';
 import {
   ACCESS_TOKEN_CHANGE_EVENT,
@@ -20,7 +26,7 @@ function notifyAuthSucceeded() {
   window.dispatchEvent(new Event(AUTH_SUCCESS_EVENT));
 }
 
-export function useAuth() {
+function useAuthState() {
   const queryClient = useQueryClient();
   const [accessToken, setAccessToken] = useState(() => getStoredAccessToken());
 
@@ -78,12 +84,22 @@ export function useAuth() {
     onSuccess: handleAuthSuccess,
   });
 
+  const kakaoLoginMutation = useMutation({
+    mutationFn: ({ code, redirectUri }: KakaoLoginRequest) => kakaoLoginRequest(code, redirectUri),
+    onSuccess: handleAuthSuccess,
+  });
+
   const logout = useCallback(() => {
     clearStoredAccessToken();
     clearBookmarkMergeDismissed();
     setAccessToken(null);
     queryClient.clear();
   }, [queryClient]);
+
+  const deleteAccountMutation = useMutation({
+    mutationFn: ({ password }: { password?: string }) => deleteAccountRequest(password),
+    onSuccess: logout,
+  });
 
   return {
     user: meQuery.data ?? null,
@@ -93,8 +109,27 @@ export function useAuth() {
     meQuery,
     login: loginMutation.mutateAsync,
     signup: signupMutation.mutateAsync,
+    loginWithKakao: kakaoLoginMutation.mutateAsync,
+    deleteAccount: deleteAccountMutation.mutateAsync,
     logout,
     loginMutation,
     signupMutation,
+    kakaoLoginMutation,
+    deleteAccountMutation,
   };
+}
+
+type AuthContextValue = ReturnType<typeof useAuthState>;
+
+const AuthContext = createContext<AuthContextValue | null>(null);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const value = useAuthState();
+  return createElement(AuthContext.Provider, { value }, children);
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error('useAuth must be used within AuthProvider');
+  return context;
 }

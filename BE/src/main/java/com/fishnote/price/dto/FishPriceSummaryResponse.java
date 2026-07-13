@@ -9,4 +9,5 @@ public record FishPriceSummaryResponse(
         FishPriceObservationResponse latest,
         List<FishPriceObservationResponse> recent,
         List<FishPriceGraphPointResponse> dailyAverage,
-        List<FishShopPriceSeriesResponse> byShop) {}
+        List<FishShopPriceSeriesResponse> byShop,
+        List<FishVariantPriceSeriesResponse> byVariant) {}

@@ -24,7 +24,7 @@ export default function SaveButton({ fishId, fishName, className = 'absolute rig
       onClick={handleClick}
       className={[
         className,
-        'inline-flex h-8 w-8 items-center justify-center rounded-full border border-line bg-white/90 text-ink-mute transition hover:text-sea',
+        'inline-flex h-11 w-11 items-center justify-center rounded-full border border-line bg-surface/90 text-ink-mute shadow-sm transition hover:text-sea focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sea focus-visible:ring-offset-2',
       ].join(' ')}
       aria-label={bookmarked ? `${fishName} 저장 해제` : `${fishName} 저장`}
       aria-pressed={bookmarked}

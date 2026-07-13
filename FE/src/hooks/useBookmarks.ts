@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useSyncExternalStore } from 'react';
+import { createContext, createElement, useCallback, useContext, useMemo, useSyncExternalStore, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { addMyBookmark, bookmarksMeQueryKey, deleteMyBookmark, getMyBookmarks } from '../api/bookmarks';
 import {
@@ -23,7 +23,7 @@ interface ToggleBookmarkContext {
 const emptySnapshot: BookmarkSnapshot = [];
 const emptyServerBookmarks: FishSummary[] = [];
 
-export function useBookmarks() {
+function useBookmarksState() {
   const queryClient = useQueryClient();
   const { accessToken } = useAuth();
   const isServerMode = Boolean(accessToken);
@@ -98,6 +98,21 @@ export function useBookmarks() {
     isLoading: isServerMode ? bookmarksQuery.isLoading : false,
     isError: isServerMode ? bookmarksQuery.isError : false,
   };
+}
+
+type BookmarksContextValue = ReturnType<typeof useBookmarksState>;
+
+const BookmarksContext = createContext<BookmarksContextValue | null>(null);
+
+export function BookmarkProvider({ children }: { children: ReactNode }) {
+  const value = useBookmarksState();
+  return createElement(BookmarksContext.Provider, { value }, children);
+}
+
+export function useBookmarks() {
+  const context = useContext(BookmarksContext);
+  if (!context) throw new Error('useBookmarks must be used within BookmarkProvider');
+  return context;
 }
 
 function findCachedFishSummary(queryClient: QueryClient, fishId: number) {

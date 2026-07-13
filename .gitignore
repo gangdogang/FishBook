@@ -12,6 +12,8 @@ FE/dist-ssr/
 FE/*.tsbuildinfo
 BE/.gradle/
 BE/build/
+__pycache__/
+*.py[cod]
 
 # Environment and local-only config
 .env

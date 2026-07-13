@@ -77,6 +77,13 @@ class FishPriceControllerTest {
                 .andExpect(jsonPath("$.dailyAverage[0].observationCount", is(2)))
                 .andExpect(jsonPath("$.byShop[*].shopName", containsInAnyOrder("윤호수산", "성전물산")))
                 .andExpect(jsonPath("$.byShop.length()", is(2)))
+                .andExpect(jsonPath("$.byVariant.length()", is(1)))
+                .andExpect(jsonPath("$.byVariant[0].variantLabel", is("제주 양식")))
+                .andExpect(jsonPath("$.byVariant[0].farming", is("양식")))
+                .andExpect(jsonPath("$.byVariant[0].origin", is("제주")))
+                .andExpect(jsonPath("$.byVariant[0].unit", is("kg")))
+                .andExpect(jsonPath("$.byVariant[0].observationCount", is(2)))
+                .andExpect(jsonPath("$.byVariant[0].graph.length()", is(1)))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -112,6 +119,7 @@ class FishPriceControllerTest {
         observation.setCanonicalFishName("광어");
         observation.setReportedName("제주광어");
         observation.setOrigin("제주");
+        observation.setCondition("활/양식");
         observation.setSizeGrade("2.4~2.5kg");
         observation.setUnit("kg");
         observation.setPriceMinKrw(minPrice);

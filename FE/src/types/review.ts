@@ -16,6 +16,9 @@ export interface ReviewList {
   totalCount: number;
   ratingDistribution: Record<'1' | '2' | '3' | '4' | '5', number>;
   reviews: Review[];
+  page: number;
+  size: number;
+  hasNext: boolean;
 }
 
 export type ReviewSort = 'latest' | 'helpful';

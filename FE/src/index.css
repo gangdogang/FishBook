@@ -2,17 +2,44 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 색 토큰 — tailwind.config.js가 이 변수들을 참조한다 (rgb 채널값) */
 :root {
-  color: #1A2B33;
-  background: #F6F8F9;
+  --c-sea: 15 110 132; /* #0F6E84 */
+  --c-sea-soft: 227 240 243; /* #E3F0F3 */
+  --c-sea-deep: 12 90 108; /* #0C5A6C */
+  --c-ink: 26 43 51; /* #1A2B33 */
+  --c-ink-mute: 95 112 120; /* #5F7078 */
+  --c-mist: 246 248 249; /* #F6F8F9 */
+  --c-line: 227 234 237; /* #E3EAED */
+  --c-chipbg: 238 243 245; /* #EEF3F5 */
+  --c-star: 224 160 48; /* #E0A030 */
+  --c-surface: 255 255 255; /* 카드·헤더 배경 */
+
+  color: rgb(var(--c-ink));
+  background: rgb(var(--c-mist));
   font-family: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+}
+
+.dark {
+  --c-sea: 62 159 179; /* 어두운 배경 대비 밝힌 teal */
+  --c-sea-soft: 21 58 68;
+  --c-sea-deep: 95 182 200; /* hover 시 더 밝게 */
+  --c-ink: 232 238 240;
+  --c-ink-mute: 148 163 170;
+  --c-mist: 14 22 26; /* 페이지 배경 */
+  --c-line: 42 56 62;
+  --c-chipbg: 30 42 48;
+  --c-star: 232 178 76;
+  --c-surface: 23 33 38; /* 카드·헤더 배경 */
+
+  color-scheme: dark;
 }
 
 body {
   margin: 0;
   min-width: 320px;
-  background: #F6F8F9;
-  color: #1A2B33;
+  background: rgb(var(--c-mist));
+  color: rgb(var(--c-ink));
   font-family: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
   font-size: 15px;
   line-height: 1.7;
@@ -23,4 +50,11 @@ input,
 textarea,
 select {
   font: inherit;
+}
+
+/* 다크모드에서 focus ring offset이 흰색 테두리로 보이지 않도록 배경색과 맞춤 */
+.dark *,
+.dark ::before,
+.dark ::after {
+  --tw-ring-offset-color: rgb(var(--c-mist));
 }

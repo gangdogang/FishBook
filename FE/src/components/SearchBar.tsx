@@ -30,8 +30,8 @@ export default function SearchBar({
       onSubmit={handleSubmit}
       className={[
         isCompact
-          ? 'flex h-9 w-full min-w-0 items-center gap-2 rounded-full border border-line bg-mist py-0 pl-3 pr-1.5'
-          : 'mx-auto flex min-h-[58px] w-full max-w-[520px] min-w-0 items-center gap-3 rounded-card border-[1.5px] border-line bg-white py-0 pl-[18px] pr-2',
+          ? 'flex min-h-11 w-full min-w-0 items-center gap-2 rounded-full border border-line bg-mist py-0 pl-3 pr-0.5 focus-within:border-sea focus-within:ring-2 focus-within:ring-sea/15'
+          : 'mx-auto flex min-h-[58px] w-full max-w-[520px] min-w-0 items-center gap-3 rounded-card border-[1.5px] border-line bg-surface py-0 pl-[18px] pr-2',
         className,
       ].join(' ')}
     >
@@ -40,10 +40,10 @@ export default function SearchBar({
         value={value}
         onChange={(event) => setValue(event.target.value)}
         placeholder={placeholder}
-        className={isCompact ? 'min-w-0 flex-1 bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-mute/70' : 'min-w-0 flex-1 bg-transparent text-[15px] text-ink outline-none placeholder:text-ink-mute/70'}
+        className={isCompact ? 'min-w-0 flex-1 bg-transparent text-13 text-ink outline-none placeholder:text-ink-mute/70' : 'min-w-0 flex-1 bg-transparent text-15 text-ink outline-none placeholder:text-ink-mute/70'}
       />
       <button
-        className={isCompact ? 'flex h-7 w-7 flex-none items-center justify-center rounded-full bg-sea text-white transition hover:bg-sea' : 'inline-flex h-11 flex-none items-center justify-center rounded-[10px] bg-sea px-[18px] text-sm font-bold text-white transition hover:bg-sea'}
+        className={isCompact ? 'flex h-11 w-11 flex-none items-center justify-center rounded-full bg-sea text-white transition hover:bg-sea-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sea focus-visible:ring-offset-2' : 'inline-flex h-11 flex-none items-center justify-center rounded-btn bg-sea px-4.5 text-sm font-bold text-white transition hover:bg-sea-deep focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sea focus-visible:ring-offset-2'}
         type="submit"
         aria-label="검색"
       >

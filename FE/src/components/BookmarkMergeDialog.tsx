@@ -90,17 +90,17 @@ export default function BookmarkMergeDialog() {
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
-        className="w-full max-w-[360px] rounded-card border border-line bg-white px-5 py-5 shadow-[0_20px_50px_rgba(26,43,51,0.22)]"
+        className="w-full max-w-[360px] rounded-card border border-line bg-surface px-5 py-5 shadow-[0_20px_50px_rgba(26,43,51,0.22)]"
       >
-        <h2 id={titleId} className="m-0 text-[20px] font-extrabold leading-snug text-ink">
+        <h2 id={titleId} className="m-0 text-20 font-extrabold leading-snug text-ink">
           이 기기에 저장한 생선 {fishIds.length}종이 있어요
         </h2>
-        <p id={descriptionId} className="mb-0 mt-2 text-[14px] leading-[1.6] text-ink-mute">
+        <p id={descriptionId} className="mb-0 mt-2 text-14 leading-[1.6] text-ink-mute">
           내 도감으로 옮길까요?
         </p>
 
         {errorMessage ? (
-          <p role="alert" className="mb-0 mt-3 rounded-[10px] bg-red-50 px-3 py-2 text-[13px] font-medium text-red-700">
+          <p role="alert" className="mb-0 mt-3 rounded-btn bg-red-50 dark:bg-red-950/40 px-3 py-2 text-13 font-medium text-red-700 dark:text-red-400">
             {errorMessage}
           </p>
         ) : null}
@@ -111,7 +111,7 @@ export default function BookmarkMergeDialog() {
             type="button"
             disabled={mergeMutation.isPending}
             onClick={() => mergeMutation.mutate(fishIds)}
-            className="inline-flex min-h-11 items-center justify-center rounded-[10px] border-0 bg-sea px-4 py-2.5 text-sm font-bold text-white transition hover:bg-sea disabled:cursor-not-allowed disabled:bg-slate-300"
+            className="inline-flex min-h-11 items-center justify-center rounded-btn border-0 bg-sea px-4 py-2.5 text-sm font-bold text-white transition hover:bg-sea-deep disabled:cursor-not-allowed disabled:bg-slate-300 dark:bg-slate-600"
           >
             {mergeMutation.isPending ? '옮기는 중...' : '옮기기'}
           </button>
@@ -119,7 +119,7 @@ export default function BookmarkMergeDialog() {
             type="button"
             disabled={mergeMutation.isPending}
             onClick={handleLater}
-            className="inline-flex min-h-11 items-center justify-center rounded-[10px] border border-line bg-white px-4 py-2.5 text-sm font-bold text-ink transition hover:border-sea hover:text-sea disabled:cursor-not-allowed disabled:text-ink-mute"
+            className="inline-flex min-h-11 items-center justify-center rounded-btn border border-line bg-surface px-4 py-2.5 text-sm font-bold text-ink transition hover:border-sea hover:text-sea disabled:cursor-not-allowed disabled:text-ink-mute"
           >
             나중에
           </button>

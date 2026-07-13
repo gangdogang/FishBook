@@ -7,8 +7,9 @@ export interface AuthResponse {
 
 export interface AuthUser {
   id: number;
-  email: string;
+  email: string | null;
   nickname: string;
+  hasPassword: boolean;
 }
 
 export interface LoginRequest {
@@ -18,6 +19,11 @@ export interface LoginRequest {
 
 export interface SignupRequest extends LoginRequest {
   nickname: string;
+}
+
+export interface KakaoLoginRequest {
+  code: string;
+  redirectUri: string;
 }
 
 export async function login(email: string, password: string) {
@@ -39,4 +45,13 @@ export async function signup(email: string, password: string, nickname: string) 
 export async function getMe() {
   const { data } = await apiClient.get<AuthUser>('/auth/me');
   return data;
+}
+
+export async function loginWithKakao(code: string, redirectUri: string) {
+  const { data } = await apiClient.post<AuthResponse>('/auth/kakao', { code, redirectUri });
+  return data;
+}
+
+export async function deleteAccount(password?: string) {
+  await apiClient.delete('/auth/me', { data: password ? { password } : {} });
 }

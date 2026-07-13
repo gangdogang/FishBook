@@ -34,7 +34,7 @@ export default function HomeQuickNav() {
 
   return (
     <nav aria-label="홈 바로가기" className="fixed left-[calc(50%-566px)] top-1/2 z-40 hidden -translate-y-1/2 xl:block">
-      <div className="flex flex-col items-center gap-1.5 rounded-full border border-line bg-white/90 p-2 shadow-[0_10px_30px_rgba(26,43,51,0.10)] backdrop-blur">
+      <div className="flex flex-col items-center gap-1.5 rounded-full border border-line bg-surface/90 p-2 shadow-[0_10px_30px_rgba(26,43,51,0.10)] backdrop-blur">
         {SECTIONS.map((section) => {
           const active = activeId === section.id;
           return (
@@ -45,7 +45,7 @@ export default function HomeQuickNav() {
               aria-label={section.label}
               aria-current={active ? 'true' : undefined}
               className={[
-                'group relative flex h-10 w-10 items-center justify-center rounded-full text-[17px] transition-all duration-200',
+                'group relative flex h-10 w-10 items-center justify-center rounded-full text-17 transition-all duration-200',
                 active ? 'scale-110 bg-sea-soft ring-2 ring-sea' : 'bg-chipbg hover:scale-105 hover:bg-sea-soft',
               ].join(' ')}
             >
@@ -53,7 +53,7 @@ export default function HomeQuickNav() {
               <span
                 className={[
                   'pointer-events-none absolute left-[calc(100%+12px)] top-1/2 -translate-y-1/2 whitespace-nowrap',
-                  'rounded-full bg-ink px-2.5 py-1 text-[11px] font-semibold text-white transition-opacity duration-150',
+                  'rounded-full bg-ink px-2.5 py-1 text-11 font-semibold text-white transition-opacity duration-150',
                   active ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
                 ].join(' ')}
               >
@@ -72,7 +72,7 @@ export default function HomeQuickNav() {
           className="group relative flex h-10 w-10 items-center justify-center rounded-full bg-chipbg text-ink-mute transition-all duration-200 hover:scale-105 hover:bg-sea-soft hover:text-sea"
         >
           <ArrowUp className="h-4 w-4" aria-hidden />
-          <span className="pointer-events-none absolute left-[calc(100%+12px)] top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-ink px-2.5 py-1 text-[11px] font-semibold text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+          <span className="pointer-events-none absolute left-[calc(100%+12px)] top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-ink px-2.5 py-1 text-11 font-semibold text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             맨 위로
           </span>
         </button>

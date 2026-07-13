@@ -17,7 +17,7 @@ export default function ReviewList({ reviews, onDelete, onHelpful, workingReview
   const [deletePassword, setDeletePassword] = useState('');
 
   if (reviews.length === 0) {
-    return <div className="rounded-card border border-dashed border-line bg-white px-5 py-8 text-center text-sm text-ink-mute">첫 후기를 남겨보세요</div>;
+    return <div className="rounded-card border border-dashed border-line bg-surface px-5 py-8 text-center text-sm text-ink-mute">첫 후기를 남겨보세요</div>;
   }
 
   function isHelpful(reviewId: number) {
@@ -61,14 +61,14 @@ export default function ReviewList({ reviews, onDelete, onHelpful, workingReview
 
   return (
     <div className="grid gap-3">
-      {message ? <p className="m-0 rounded-[10px] bg-red-50 px-3 py-2 text-[13px] font-medium text-red-700">{message}</p> : null}
+      {message ? <p className="m-0 rounded-btn bg-red-50 dark:bg-red-950/40 px-3 py-2 text-13 font-medium text-red-700 dark:text-red-400">{message}</p> : null}
 
       {reviews.map((review) => {
         const helpful = isHelpful(review.id);
         const helpfulCount = helpfulCounts[review.id] ?? review.helpfulCount ?? 0;
 
         return (
-          <article key={review.id} className="rounded-card border border-line bg-white px-[18px] py-4">
+          <article key={review.id} className="rounded-card border border-line bg-surface px-4.5 py-4">
             <div className="mb-2 flex items-start gap-2.5">
               <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-sea-soft text-sm font-extrabold text-sea">
                 {getInitial(review.nickname)}
@@ -86,7 +86,7 @@ export default function ReviewList({ reviews, onDelete, onHelpful, workingReview
                 type="button"
                 disabled={workingReviewId === review.id}
                 onClick={() => openDeleteForm(review.id)}
-                className="ml-auto flex-none border-0 bg-transparent p-0 text-xs font-medium text-ink-mute transition hover:text-red-600 disabled:cursor-wait disabled:opacity-50"
+                className="ml-auto inline-flex min-h-11 flex-none items-center border-0 bg-transparent px-2 text-xs font-medium text-ink-mute transition hover:text-red-600 dark:text-red-400 disabled:cursor-wait disabled:opacity-50"
               >
                 삭제
               </button>
@@ -101,7 +101,7 @@ export default function ReviewList({ reviews, onDelete, onHelpful, workingReview
                   alt="후기 사진"
                   loading="lazy"
                   decoding="async"
-                  className="max-h-40 w-full rounded-[10px] border border-line object-cover"
+                  className="max-h-40 w-full rounded-btn border border-line object-cover"
                 />
               </a>
             ) : null}
@@ -111,8 +111,8 @@ export default function ReviewList({ reviews, onDelete, onHelpful, workingReview
               disabled={helpful || workingReviewId === review.id}
               onClick={() => void handleHelpful(review.id)}
               className={[
-                'inline-flex min-h-8 items-center gap-1.5 rounded-full border px-[13px] py-[5px] text-[13px] font-semibold transition',
-                helpful ? 'border-sea bg-sea-soft text-sea' : 'border-line bg-white text-ink-mute hover:border-sea hover:text-sea',
+                'inline-flex min-h-11 items-center gap-1.5 rounded-full border px-3.25 py-1.75 text-13 font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sea focus-visible:ring-offset-2',
+                helpful ? 'border-sea bg-sea-soft text-sea' : 'border-line bg-surface text-ink-mute hover:border-sea hover:text-sea',
                 workingReviewId === review.id ? 'cursor-wait opacity-60' : '',
               ].join(' ')}
             >
@@ -121,8 +121,8 @@ export default function ReviewList({ reviews, onDelete, onHelpful, workingReview
             </button>
 
             {deletingReviewId === review.id ? (
-              <div className="mt-3 rounded-[10px] bg-mist p-3">
-                <p className="m-0 mb-2 text-[13px] font-medium leading-[1.5] text-ink">
+              <div className="mt-3 rounded-btn bg-mist p-3">
+                <p className="m-0 mb-2 text-13 font-medium leading-[1.5] text-ink">
                   {review.mine ? '이 후기를 지울까요?' : '이 후기를 지울까요? 작성할 때 쓴 비밀번호를 입력해 주세요'}
                 </p>
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -133,7 +133,7 @@ export default function ReviewList({ reviews, onDelete, onHelpful, workingReview
                       autoFocus
                       onChange={(event) => setDeletePassword(event.target.value)}
                       placeholder="비밀번호"
-                      className="min-w-0 flex-1 rounded-[10px] border border-line bg-white px-3 py-2 text-[13px] text-ink outline-none focus:border-sea"
+                      className="min-w-0 flex-1 rounded-btn border border-line bg-surface px-3 py-2 text-13 text-ink outline-none focus:border-sea"
                     />
                   ) : null}
                   <div className="flex gap-2">
@@ -144,7 +144,7 @@ export default function ReviewList({ reviews, onDelete, onHelpful, workingReview
                         setDeletePassword('');
                         setMessage(undefined);
                       }}
-                      className="min-h-9 flex-1 rounded-[10px] border border-line bg-white px-3 py-2 text-[13px] font-semibold text-ink-mute sm:flex-none"
+                      className="min-h-11 flex-1 rounded-btn border border-line bg-surface px-3 py-2 text-13 font-semibold text-ink-mute sm:flex-none"
                     >
                       취소
                     </button>
@@ -152,7 +152,7 @@ export default function ReviewList({ reviews, onDelete, onHelpful, workingReview
                       type="button"
                       disabled={workingReviewId === review.id}
                       onClick={() => void handleDelete(review)}
-                      className="min-h-9 flex-1 rounded-[10px] border-0 bg-red-600 px-3 py-2 text-[13px] font-semibold text-white disabled:cursor-wait disabled:bg-slate-300 sm:flex-none"
+                      className="min-h-11 flex-1 rounded-btn border-0 bg-red-600 px-3 py-2 text-13 font-semibold text-white disabled:cursor-wait disabled:bg-slate-300 dark:bg-slate-600 sm:flex-none"
                     >
                       삭제
                     </button>

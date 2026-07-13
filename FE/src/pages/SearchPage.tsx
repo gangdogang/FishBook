@@ -1,12 +1,13 @@
 import { useMemo, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { chipClass } from '../components/FilterChips';
+import { chipClass } from '../lib/uiClasses';
 import FishCard from '../components/FishCard';
 import FishPlaceholder from '../components/FishPlaceholder';
 import { ErrorState, SkeletonCards } from '../components/Skeletons';
 import { useFishList } from '../hooks/useFish';
 import { SEASONS, TASTE_TAGS } from '../lib/filters';
 import { formatPriceLevel } from '../lib/format';
+import { usePageMeta } from '../hooks/usePageMeta';
 import type { FishSort, Season } from '../types/fish';
 
 const months = Array.from({ length: 12 }, (_, index) => index + 1);
@@ -18,6 +19,7 @@ const priceLevels = [
 ];
 
 export default function SearchPage() {
+  usePageMeta('탐색', '제철·맛·가격 필터로 원하는 회를 찾아보세요.');
   const [searchParams, setSearchParams] = useSearchParams();
   const params = useMemo(
     () => ({
@@ -56,14 +58,14 @@ export default function SearchPage() {
   }
 
   return (
-    <main className="mx-auto max-w-[980px] px-4 pb-20 pt-8 sm:px-7">
-      <h1 className="mb-[22px] text-2xl font-bold tracking-[-0.025em] text-ink">검색</h1>
+    <main className="mx-auto max-w-content px-4 pb-20 pt-8 sm:px-7">
+      <h1 className="mb-5.5 text-2xl font-bold tracking-[-0.025em] text-ink">검색</h1>
 
       <div className="flex flex-wrap items-start gap-8">
-        <aside className="w-full flex-none rounded-card border border-line bg-white px-[22px] py-5 lg:sticky lg:top-[90px] lg:w-60">
-          <div className="mb-[18px] flex items-center justify-between">
-            <span className="text-[15px] font-bold text-ink">필터</span>
-            <button type="button" onClick={resetFilters} className="text-[12.5px] font-semibold text-sea transition hover:text-sea">
+        <aside className="w-full flex-none rounded-card border border-line bg-surface px-5.5 py-5 lg:sticky lg:top-[90px] lg:w-60">
+          <div className="mb-4.5 flex items-center justify-between">
+            <span className="text-15 font-bold text-ink">필터</span>
+            <button type="button" onClick={resetFilters} className="text-12.5 font-semibold text-sea transition hover:text-sea-deep">
               초기화
             </button>
           </div>
@@ -114,8 +116,8 @@ export default function SearchPage() {
         </aside>
 
         <section className="min-w-[280px] flex-1">
-          <div className="mb-[18px] flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <span className="text-[15px] text-ink-mute">
+          <div className="mb-4.5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <span className="text-15 text-ink-mute">
               {params.search ? <b className="font-bold text-ink">'{params.search}'</b> : null}
               {params.search ? ' ' : null}
               검색 결과 <b className="font-bold text-ink">{isLoading ? '-' : fishes.length}</b>건
@@ -123,7 +125,7 @@ export default function SearchPage() {
             <select
               value={params.sort}
               onChange={(event) => update({ sort: event.target.value as FishSort })}
-              className="h-10 w-fit rounded-[10px] border border-line bg-white px-[13px] text-sm text-ink outline-none transition hover:border-sea focus:border-sea"
+              className="h-10 w-fit rounded-btn border border-line bg-surface px-3.25 text-sm text-ink outline-none transition hover:border-sea focus:border-sea"
             >
               <option value="popular">인기순</option>
               <option value="name">이름순</option>
@@ -131,13 +133,13 @@ export default function SearchPage() {
           </div>
 
           {activeFilterPills.length > 0 ? (
-            <div className="mb-5 flex flex-wrap gap-[7px]">
+            <div className="mb-5 flex flex-wrap gap-1.75">
               {activeFilterPills.map((pill) => (
                 <button
                   key={pill.key}
                   type="button"
                   onClick={() => update({ [pill.key]: undefined })}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-sea-soft px-3 py-1.5 text-[13px] font-semibold text-sea transition hover:bg-sea-soft"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-sea-soft px-3 py-1.5 text-13 font-semibold text-sea transition hover:bg-sea-soft"
                 >
                   {pill.label}
                   <span className="text-sm leading-none" aria-hidden>
@@ -170,8 +172,8 @@ export default function SearchPage() {
 function FilterGroup({ label, children, className = 'mb-5' }: { label: string; children: ReactNode; className?: string }) {
   return (
     <div className={className}>
-      <div className="mb-2.5 text-[12.5px] font-semibold text-ink-mute/70">{label}</div>
-      <div className="flex flex-wrap gap-[7px]">{children}</div>
+      <div className="mb-2.5 text-12.5 font-semibold text-ink-mute/70">{label}</div>
+      <div className="flex flex-wrap gap-1.75">{children}</div>
     </div>
   );
 }
@@ -192,7 +194,7 @@ function EmptyState({ onReset }: { onReset: () => void }) {
         <FishPlaceholder className="h-[29px] w-[46px] stroke-ink-mute/40" />
       </div>
       <h3 className="mb-2 text-lg font-bold text-ink">검색 결과가 없어요</h3>
-      <p className="mb-5 text-[14.5px] leading-[1.5] text-ink-mute">
+      <p className="mb-5 text-14.5 leading-[1.5] text-ink-mute">
         검색어나 필터를 바꿔보세요.
         <br />
         예: <b className="font-bold text-ink">광어, 방어, 연어</b>
@@ -200,7 +202,7 @@ function EmptyState({ onReset }: { onReset: () => void }) {
       <button
         type="button"
         onClick={onReset}
-        className="rounded-[10px] border border-sea bg-white px-[22px] py-[11px] text-sm font-semibold text-sea transition hover:bg-sea-soft"
+        className="rounded-btn border border-sea bg-surface px-5.5 py-[11px] text-sm font-semibold text-sea transition hover:bg-sea-soft"
       >
         필터 초기화
       </button>

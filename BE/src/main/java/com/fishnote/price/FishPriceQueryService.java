@@ -6,6 +6,7 @@ import com.fishnote.price.dto.FishPriceObservationResponse;
 import com.fishnote.price.dto.FishPriceGraphPointResponse;
 import com.fishnote.price.dto.FishPriceSummaryResponse;
 import com.fishnote.price.dto.FishShopPriceSeriesResponse;
+import com.fishnote.price.dto.FishVariantPriceSeriesResponse;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -62,7 +63,8 @@ public class FishPriceQueryService {
                 latest,
                 recent,
                 toGraph(graphRows),
-                toShopSeries(graphRows));
+                toShopSeries(graphRows),
+                toVariantSeries(graphRows));
     }
 
     private int clampDays(Integer requestedDays) {
@@ -113,6 +115,70 @@ public class FishPriceQueryService {
                             entry.getKey(), shopRows.size(), toResponse(latest), toGraph(shopRows));
                 })
                 .toList();
+    }
+
+    private List<FishVariantPriceSeriesResponse> toVariantSeries(List<ShopPriceObservation> observations) {
+        Map<String, List<ShopPriceObservation>> byVariant = new LinkedHashMap<>();
+        observations.stream()
+                .sorted(Comparator.comparing(ShopPriceObservation::getObservedAt))
+                .forEach(observation -> byVariant
+                        .computeIfAbsent(variantKey(observation), ignored -> new ArrayList<>())
+                        .add(observation));
+
+        return byVariant.entrySet().stream()
+                .map(entry -> {
+                    List<ShopPriceObservation> variantRows = entry.getValue();
+                    ShopPriceObservation latest = variantRows.stream()
+                            .max(Comparator.comparing(ShopPriceObservation::getObservedAt))
+                            .orElseThrow();
+                    return new FishVariantPriceSeriesResponse(
+                            entry.getKey(),
+                            variantLabel(latest),
+                            farming(latest),
+                            blankToEmpty(latest.getOrigin()),
+                            blankToEmpty(latest.getUnit()),
+                            variantRows.size(),
+                            toResponse(latest),
+                            toGraph(variantRows));
+                })
+                .sorted(Comparator.comparingLong(FishVariantPriceSeriesResponse::observationCount).reversed())
+                .toList();
+    }
+
+    private String variantKey(ShopPriceObservation observation) {
+        return String.join(
+                "|",
+                farming(observation),
+                blankToEmpty(observation.getOrigin()),
+                blankToEmpty(observation.getUnit()));
+    }
+
+    private String variantLabel(ShopPriceObservation observation) {
+        List<String> parts = new ArrayList<>();
+        String origin = blankToEmpty(observation.getOrigin());
+        String farming = farming(observation);
+        if (!origin.isBlank()) {
+            parts.add(origin);
+        }
+        if (!farming.isBlank()) {
+            parts.add(farming);
+        }
+        return parts.isEmpty() ? "구분 없음" : String.join(" ", parts);
+    }
+
+    private String farming(ShopPriceObservation observation) {
+        String condition = observation.getCondition() == null ? "" : observation.getCondition();
+        if (condition.contains("자연산")) {
+            return "자연산";
+        }
+        if (condition.contains("양식")) {
+            return "양식";
+        }
+        return "";
+    }
+
+    private String blankToEmpty(String value) {
+        return value == null || value.isBlank() ? "" : value.trim();
     }
 
     private FishPriceGraphPointResponse toGraphPoint(LocalDate observedDate, List<ShopPriceObservation> observations) {

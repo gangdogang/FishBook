@@ -54,4 +54,23 @@ class ShopPriceParserTest {
         assertThat(rows).extracting(ParsedShopPrice::sourceName)
                 .containsExactly("윤호수산", "성전물산", "성전물산");
     }
+
+    @Test
+    void appliesDomesticOriginAndFarmingSectionContexts() {
+        String text =
+                """
+                2026년07월14일 윤호수산 시세단가
+                ###국내산###
+                ###양식###
+                광어2.4~2.5kㅡ32000
+                ###자연산###
+                광어1.5kㅡ25000
+                """;
+
+        List<ParsedShopPrice> rows = parser.parse(text, OffsetDateTime.parse("2026-07-14T08:00:00+09:00"));
+
+        assertThat(rows).hasSize(2);
+        assertThat(rows).extracting(ParsedShopPrice::origin).containsExactly("국내", "국내");
+        assertThat(rows).extracting(ParsedShopPrice::condition).containsExactly("양식", "자연산");
+    }
 }

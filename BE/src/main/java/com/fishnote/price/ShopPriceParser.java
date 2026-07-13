@@ -71,6 +71,7 @@ public class ShopPriceParser {
         String speaker = firstNonBlank(sourceName, "텔레그램");
         List<ParsedShopPrice> rows = new ArrayList<>();
         String originContext = "";
+        String farmingContext = "";
 
         for (String rawLine : text.split("\\R")) {
             String line = normalizeSpace(rawLine);
@@ -81,8 +82,12 @@ public class ShopPriceParser {
                 originContext = normalizeOriginSection(line);
                 continue;
             }
+            if (isFarmingSection(line)) {
+                farmingContext = normalizeFarmingSection(line);
+                continue;
+            }
 
-            String lineForParse = enrichLine(line, originContext);
+            String lineForParse = enrichLine(line, originContext, farmingContext);
             AliasMatch alias = extractAlias(lineForParse).orElse(null);
             if (alias == null) {
                 continue;
@@ -252,11 +257,30 @@ public class ShopPriceParser {
         return value.replace("산", "");
     }
 
-    private String enrichLine(String line, String originContext) {
-        if (originContext.isBlank() || !extractOrigin(line).isBlank()) {
-            return line;
+    private boolean isFarmingSection(String line) {
+        String stripped = line.replaceAll("[^가-힣A-Za-z]", "");
+        return List.of("양식", "양식산", "자연산", "자연", "활어양식", "자연산활어").contains(stripped);
+    }
+
+    private String normalizeFarmingSection(String line) {
+        if (line.contains("자연")) {
+            return "자연산";
         }
-        return originContext + " " + line;
+        if (line.contains("양식")) {
+            return "양식";
+        }
+        return "";
+    }
+
+    private String enrichLine(String line, String originContext, String farmingContext) {
+        String enriched = line;
+        if (!originContext.isBlank() && extractOrigin(line).isBlank()) {
+            enriched = originContext + " " + enriched;
+        }
+        if (!farmingContext.isBlank() && !line.contains("양식") && !line.contains("자연산")) {
+            enriched = farmingContext + " " + enriched;
+        }
+        return enriched;
     }
 
     private String extractCondition(String line) {
@@ -272,10 +296,13 @@ public class ShopPriceParser {
     private String extractOrigin(String line) {
         for (String token : List.of(
                 "흑산도", "제주", "완도", "통영", "거제", "여수", "목포", "진도", "군산", "서천", "포항",
-                "일본산", "일본", "중국산", "중국", "노르웨이", "국내산", "국산", "수입")) {
+                "일본산", "일본", "중국산", "중국", "노르웨이", "국내산", "국내", "국산", "수입")) {
             if (line.contains(token)) {
-                if (List.of("일본산", "중국산", "국내산").contains(token)) {
+                if (List.of("일본산", "중국산").contains(token)) {
                     return token.replace("산", "");
+                }
+                if (List.of("국내산", "국산").contains(token)) {
+                    return "국내";
                 }
                 return token;
             }

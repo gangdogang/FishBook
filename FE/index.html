@@ -23,7 +23,20 @@
       content="내가 먹는 회가 어떤 생선인지, 제철·맛·가격을 한눈에. 회 도감 FishNote."
     />
     <meta name="twitter:image" content="/fish/gwangeo.jpg" />
+    <meta name="theme-color" content="#0F6E84" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0E161A" media="(prefers-color-scheme: dark)" />
+    <link rel="canonical" href="https://fishnote.kr" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script>
+      // 다크모드 FOUC 방지: 렌더 전에 html.dark 클래스 결정 (저장값 → 시스템 설정 순)
+      (function () {
+        try {
+          var stored = localStorage.getItem('fishnote-theme');
+          var dark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (dark) document.documentElement.classList.add('dark');
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

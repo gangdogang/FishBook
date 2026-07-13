@@ -42,7 +42,7 @@ export default function CardCarousel({ ariaLabel, children }: CardCarouselProps)
         onScroll={updateArrows}
         role="region"
         aria-label={ariaLabel}
-        className="-mx-4 flex snap-x snap-mandatory gap-[14px] overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="-mx-4 flex snap-x snap-mandatory gap-3.5 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {children}
       </div>
@@ -64,7 +64,7 @@ export default function CardCarousel({ ariaLabel, children }: CardCarouselProps)
 function arrowClass(side: 'left' | 'right') {
   return [
     'absolute top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full',
-    'border border-line bg-white/95 text-ink shadow-[0_6px_18px_rgba(26,43,51,0.14)] transition hover:text-sea sm:flex',
+    'border border-line bg-surface/95 text-ink shadow-[0_6px_18px_rgba(26,43,51,0.14)] transition hover:text-sea sm:flex',
     side === 'left' ? '-left-4' : '-right-4',
   ].join(' ');
 }

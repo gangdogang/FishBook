@@ -70,6 +70,17 @@ export interface FishShopPriceSeries {
   graph: FishPriceTrendPoint[];
 }
 
+export interface FishVariantPriceSeries {
+  variantKey: string;
+  variantLabel: string;
+  farming: string;
+  origin: string;
+  unit: string;
+  observationCount: number;
+  latest: FishPriceObservation;
+  graph: FishPriceTrendPoint[];
+}
+
 export interface FishPriceSummary {
   fishId: number;
   days: number;
@@ -78,4 +89,5 @@ export interface FishPriceSummary {
   recent: FishPriceObservation[];
   dailyAverage: FishPriceTrendPoint[];
   byShop: FishShopPriceSeries[];
+  byVariant: FishVariantPriceSeries[];
 }

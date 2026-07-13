@@ -18,14 +18,7 @@ export function Field({ label, error, helper, htmlFor, children }: FieldProps) {
       </LabelTag>
       {children}
       {helper ? <p className="m-0 mt-1 text-xs leading-snug text-ink-mute">{helper}</p> : null}
-      {error ? <span className="mt-1 block text-[13px] font-medium leading-snug text-red-700">{error}</span> : null}
+      {error ? <span className="mt-1 block text-13 font-medium leading-snug text-red-700 dark:text-red-400">{error}</span> : null}
     </div>
   );
-}
-
-export function inputClass(hasError: boolean) {
-  return [
-    'block w-full rounded-[10px] border bg-mist px-3 py-2.5 text-sm text-ink outline-none transition placeholder:text-ink-mute/70 focus:border-sea',
-    hasError ? 'border-red-300' : 'border-line',
-  ].join(' ');
 }

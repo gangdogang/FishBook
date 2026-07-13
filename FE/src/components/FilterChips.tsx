@@ -1,4 +1,5 @@
 import { SEASONS, TASTE_TAGS } from '../lib/filters';
+import { chipClass } from '../lib/uiClasses';
 import type { Season } from '../types/fish';
 
 interface FilterChipsProps {
@@ -46,20 +47,11 @@ export default function FilterChips({ season, taste, onSeasonChange, onTasteChan
         <button
           type="button"
           onClick={onReset}
-          className="ml-1 text-[13px] font-semibold text-sea transition hover:text-sea"
+          className="ml-1 min-h-11 px-2 text-13 font-semibold text-sea transition hover:text-sea-deep"
         >
           필터 초기화
         </button>
       ) : null}
     </div>
   );
-}
-
-export function chipClass(active: boolean) {
-  return [
-    'inline-flex items-center gap-1 whitespace-nowrap rounded-full px-[13px] py-[5px] text-[13px] font-semibold transition duration-150',
-    active
-      ? 'bg-sea text-white'
-      : 'bg-chipbg text-ink hover:text-sea',
-  ].join(' ');
 }

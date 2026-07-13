@@ -11,9 +11,13 @@
 |---|---|---|
 | GET | `/fish` | 생선 목록 (검색·필터·정렬) |
 | GET | `/fish/{id}` | 생선 상세 (제철·맛·비슷한생선·후기요약 포함) |
+| GET | `/fish/{id}/prices` | 특정 생선의 최근 상회 시세 |
 | GET | `/fish/{id}/reviews` | 특정 생선 후기 목록 |
 | POST | `/fish/{id}/reviews` | 후기 작성 |
 | DELETE | `/reviews/{id}` | 후기 삭제 (비밀번호 확인) |
+| POST | `/reviews/{id}/helpful` | 도움돼요 (회원 또는 익명 식별자별 1회) |
+| DELETE | `/auth/me` | 현재 비밀번호 확인 후 회원 탈퇴 |
+| POST | `/auth/kakao` | 카카오 인가 코드 교환 후 FishNote JWT 발급 |
 
 ---
 
@@ -74,6 +78,45 @@
 
 ---
 
+## 3-1. GET /fish/{id}/prices — 최근 시세
+
+쿼리(선택): `days`(기본 14, 서버에서 1~30 범위로 보정)
+
+응답 200:
+```json
+{
+  "fishId": 1,
+  "days": 14,
+  "observationCount": 2,
+  "latest": {
+    "observedAt": "2026-07-13T08:00:00+09:00",
+    "priceMinKrw": 31000,
+    "priceMaxKrw": 33000,
+    "unit": "kg",
+    "origin": "제주",
+    "sizeGrade": "2.4~2.5kg",
+    "sourceLabel": "상회 시세"
+  },
+  "recent": [
+    {
+      "observedAt": "2026-07-13T08:00:00+09:00",
+      "priceMinKrw": 31000,
+      "priceMaxKrw": 33000,
+      "unit": "kg",
+      "origin": "제주",
+      "sizeGrade": "2.4~2.5kg",
+      "sourceLabel": "상회 시세"
+    }
+  ]
+}
+```
+
+- 관측값이 없으면 `latest`는 `null`, `recent`는 빈 배열이다.
+- 검수용 `rawText`, `speaker`, `sourceName`, 원문 어종명은 공개 응답에서 제외한다.
+- 없는 생선 id → 404 (§6)
+
+---
+
 ## 4. GET /fish/{id}/reviews — 후기 목록
 
 쿼리(선택): `page`(기본 0), `size`(기본 20), `sort`=`latest`(기본)
@@ -84,6 +127,9 @@
   "fishId": 1,
   "avgRating": 4.3,
   "totalCount": 12,
+  "page": 0,
+  "size": 20,
+  "hasNext": false,
   "reviews": [
     {
       "id": 101,
@@ -207,7 +253,8 @@
 ```
 
 ### 9-4. `POST /reviews/{id}/helpful` — 도움돼요
-- helpful_count 1 증가. (중복 방지는 프론트 localStorage로 1인 1회 제한)
+- 최초 요청일 때만 helpful_count를 1 증가한다.
+- 회원은 사용자 ID, 비회원은 IP를 서버에서 해시한 값으로 중복을 방지한다.
 - 응답 200:
 ```json
 { "id": 101, "helpfulCount": 5 }

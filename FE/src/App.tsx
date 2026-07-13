@@ -1,25 +1,54 @@
+import { Suspense, lazy } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import AppLayout from './components/AppLayout';
+import ErrorBoundary from './components/ErrorBoundary';
+import { SkeletonCards } from './components/Skeletons';
 import HomePage from './pages/HomePage';
-import FishDetailPage from './pages/FishDetailPage';
-import SearchPage from './pages/SearchPage';
-import SavedPage from './pages/SavedPage';
-import CalendarPage from './pages/CalendarPage';
-import LoginPage from './pages/LoginPage';
-import SignupPage from './pages/SignupPage';
+
+// 첫 화면(홈)만 즉시 로드하고 나머지는 라우트 단위로 코드 스플리팅
+const FishDetailPage = lazy(() => import('./pages/FishDetailPage'));
+const SearchPage = lazy(() => import('./pages/SearchPage'));
+const SavedPage = lazy(() => import('./pages/SavedPage'));
+const CalendarPage = lazy(() => import('./pages/CalendarPage'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const SignupPage = lazy(() => import('./pages/SignupPage'));
+const KakaoCallbackPage = lazy(() => import('./pages/KakaoCallbackPage'));
+const AccountPage = lazy(() => import('./pages/AccountPage'));
+const SourcesPage = lazy(() => import('./pages/SourcesPage'));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
+const TermsPage = lazy(() => import('./pages/TermsPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+
+function RouteFallback() {
+  return (
+    <main className="mx-auto max-w-[1180px] px-4 pb-20 pt-7 sm:px-7">
+      <SkeletonCards />
+    </main>
+  );
+}
 
 export default function App() {
   return (
     <AppLayout>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/fish/:id" element={<FishDetailPage />} />
-        <Route path="/search" element={<SearchPage />} />
-        <Route path="/saved" element={<SavedPage />} />
-        <Route path="/calendar" element={<CalendarPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-      </Routes>
+      <ErrorBoundary>
+        <Suspense fallback={<RouteFallback />}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/fish/:id" element={<FishDetailPage />} />
+            <Route path="/search" element={<SearchPage />} />
+            <Route path="/saved" element={<SavedPage />} />
+            <Route path="/calendar" element={<CalendarPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/auth/kakao/callback" element={<KakaoCallbackPage />} />
+            <Route path="/account" element={<AccountPage />} />
+            <Route path="/sources" element={<SourcesPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Suspense>
+      </ErrorBoundary>
     </AppLayout>
   );
 }

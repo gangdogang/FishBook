@@ -24,7 +24,7 @@ export default function FishCard({ fish, variant = 'default' }: FishCardProps) {
   return (
     <Link
       to={`/fish/${fish.id}`}
-      className="group block overflow-hidden rounded-card border border-line bg-white shadow-none transition duration-150 hover:shadow-[0_8px_24px_rgba(26,43,51,0.08)]"
+      className="group block overflow-hidden rounded-card border border-line bg-surface shadow-none transition duration-150 hover:shadow-[0_8px_24px_rgba(26,43,51,0.08)]"
     >
       <div className={['relative flex items-center justify-center bg-chipbg', isWide ? 'aspect-[5/2]' : 'aspect-[4/3]'].join(' ')}>
         {fish.imageUrl ? (
@@ -46,7 +46,7 @@ export default function FishCard({ fish, variant = 'default' }: FishCardProps) {
         </div>
 
         {hasSummary && summary.description ? (
-          <p className={['mb-2.5 mt-[3px] text-[13px] leading-[1.5] text-ink-mute', isWide ? 'line-clamp-2' : 'truncate'].join(' ')}>
+          <p className={['mb-2.5 mt-[3px] text-13 leading-[1.5] text-ink-mute', isWide ? 'line-clamp-2' : 'truncate'].join(' ')}>
             {summary.description}
           </p>
         ) : null}
@@ -55,7 +55,7 @@ export default function FishCard({ fish, variant = 'default' }: FishCardProps) {
           <div className="flex items-center justify-between gap-2">
             {seasonMonths.length > 0 ? <SeasonBadgeOutline label={formatSeasonBadge(seasonMonths)} /> : <span />}
             {'priceLevel' in summary ? (
-              <span className="flex-none text-[13px] font-bold tabular-nums text-ink">{formatPriceLevel(summary.priceLevel)}</span>
+              <span className="flex-none text-13 font-bold tabular-nums text-ink">{formatPriceLevel(summary.priceLevel)}</span>
             ) : (
               <span />
             )}

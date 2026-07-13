@@ -2,7 +2,8 @@ import { FormEvent, useEffect, useRef, useState, type RefObject } from 'react';
 import { uploadImage } from '../api/image';
 import { useAuth } from '../hooks/useAuth';
 import type { ReviewRequest } from '../types/review';
-import { Field, inputClass } from './FormField';
+import { inputClass } from '../lib/uiClasses';
+import { Field } from './FormField';
 
 type ReviewFormInputField = 'nickname' | 'rating' | 'content' | 'password';
 type ReviewFormField = ReviewFormInputField | 'image';
@@ -138,11 +139,11 @@ export default function ReviewForm({ submitting, error, resetKey, formRef, onSub
       id="review-form"
       onSubmit={handleSubmit}
       noValidate
-      className="mt-3.5 rounded-card border border-line bg-white p-[18px]"
+      className="mt-3.5 rounded-card border border-line bg-surface p-[18px]"
     >
-      <h3 className="m-0 mb-3.5 text-[15px] font-bold text-ink">후기 남기기</h3>
+      <h3 className="m-0 mb-3.5 text-15 font-bold text-ink">후기 남기기</h3>
 
-      {isMemberReview && user ? <p className="m-0 mb-3 text-[13px] leading-snug text-ink-mute">{user.nickname} 님으로 남깁니다</p> : null}
+      {isMemberReview && user ? <p className="m-0 mb-3 text-13 leading-snug text-ink-mute">{user.nickname} 님으로 남깁니다</p> : null}
 
       <div className={['mb-3 grid gap-3', isMemberReview ? '' : 'sm:grid-cols-2'].join(' ')}>
         {!isMemberReview ? (
@@ -171,7 +172,7 @@ export default function ReviewForm({ submitting, error, resetKey, formRef, onSub
                   aria-checked={form.rating === score}
                   onClick={() => updateField('rating', form.rating === score ? null : score)}
                   className={[
-                    'min-h-9 min-w-9 border-0 bg-transparent p-0 text-[24px] leading-none transition',
+                    'min-h-9 min-w-9 border-0 bg-transparent p-0 text-24 leading-none transition',
                     selected ? 'text-star' : 'text-line hover:text-star',
                   ].join(' ')}
                   aria-label={`${score}점`}
@@ -227,13 +228,13 @@ export default function ReviewForm({ submitting, error, resetKey, formRef, onSub
               type="button"
               disabled={isBusy}
               onClick={() => fileInputRef.current?.click()}
-              className="inline-flex min-h-9 items-center justify-center rounded-[10px] border border-line bg-white px-3 py-2 text-[13px] font-bold text-ink transition hover:border-sea hover:text-sea disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-ink-mute"
+              className="inline-flex min-h-11 items-center justify-center rounded-btn border border-line bg-surface px-3 py-2 text-13 font-bold text-ink transition hover:border-sea hover:text-sea disabled:cursor-not-allowed disabled:bg-slate-100 dark:bg-slate-800 disabled:text-ink-mute"
             >
               📷 사진 추가
             </button>
 
             {selectedImage ? (
-              <div className="relative mt-2 h-24 w-24 overflow-hidden rounded-[10px] border border-line bg-chipbg">
+              <div className="relative mt-2 h-24 w-24 overflow-hidden rounded-btn border border-line bg-chipbg">
                 <img src={selectedImage.previewUrl} alt="선택한 후기 사진 미리보기" className="h-full w-full object-cover" />
                 <button
                   type="button"
@@ -247,15 +248,15 @@ export default function ReviewForm({ submitting, error, resetKey, formRef, onSub
               </div>
             ) : null}
 
-            {fieldErrors.image ? <span className="mt-1 block text-[13px] font-medium leading-snug text-red-700">{fieldErrors.image}</span> : null}
+            {fieldErrors.image ? <span className="mt-1 block text-13 font-medium leading-snug text-red-700 dark:text-red-400">{fieldErrors.image}</span> : null}
           </div>
         </div>
 
         <div className="flex flex-col items-stretch gap-2 sm:items-end">
-          {error ? <p className="m-0 text-[13px] font-medium leading-snug text-red-700">{error}</p> : null}
+          {error ? <p className="m-0 text-13 font-medium leading-snug text-red-700 dark:text-red-400">{error}</p> : null}
           <button
             disabled={isBusy}
-            className="inline-flex min-h-11 w-full items-center justify-center rounded-[10px] border-0 bg-sea px-5 py-2.5 text-sm font-bold text-white transition hover:bg-sea disabled:cursor-not-allowed disabled:bg-slate-300 sm:w-auto"
+            className="inline-flex min-h-11 w-full items-center justify-center rounded-btn border-0 bg-sea px-5 py-2.5 text-sm font-bold text-white transition hover:bg-sea-deep disabled:cursor-not-allowed disabled:bg-slate-300 dark:bg-slate-600 sm:w-auto"
             type="submit"
           >
             {uploading ? '사진 올리는 중...' : submitting ? '등록 중...' : '등록하기'}

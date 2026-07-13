@@ -4,7 +4,7 @@ interface RedirectLocation {
   hash?: unknown;
 }
 
-const AUTH_PATHS = new Set(['/login', '/signup']);
+const AUTH_PATHS = new Set(['/login', '/signup', '/auth/kakao/callback']);
 
 export function getAuthRedirectPath(state: unknown) {
   if (!state || typeof state !== 'object' || !('from' in state)) return '/';

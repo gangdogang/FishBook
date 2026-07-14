@@ -357,7 +357,9 @@ public class ShopPriceParser {
         Map<String, String> map = new LinkedHashMap<>();
         addAliases(map, "광어", "광어", "찰광어", "제주광어");
         addAliases(map, "방어", "방어", "부시리", "잿방어");
-        addAliases(map, "참돔", "참돔", "도미", "감성돔");
+        // 감성돔은 도감에 별도 어종(id 11)으로 존재 — 참돔 별칭으로 묶으면 시세가 잘못 연결됨
+        addAliases(map, "참돔", "참돔", "도미");
+        addAliases(map, "감성돔", "감성돔");
         addAliases(map, "농어", "농어", "대농어", "점농어");
         addAliases(map, "연어", "연어");
         addAliases(map, "우럭", "우럭");
